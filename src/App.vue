@@ -1,5 +1,5 @@
 <template>
-  <img alt="Vue logo" src="./assets/logo.png">
+  <img alt="Vue logo" src="./assets/BTr-removebg-preview.png">
   <LoginPage/>
 
 </template>

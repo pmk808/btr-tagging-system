@@ -1,7 +1,7 @@
 <template>
     <div class="login-container">
       <div class="treasury-office">
-        <img src="BTr-removebg-preview.png" alt="Treasury Department Logo" class="treasury-logo">
+        <img src="/assets/BTr-hq" alt="Treasury Department Logo" class="treasury-logo">
       </div>
       <div class="login-form">
         <h2>Login</h2>
