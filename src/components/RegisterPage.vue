@@ -1,46 +1,50 @@
 <template>
-    <div class="login-container">
-        <!-- Overlay image -->
-        <div class="overlay-image">
-            <!-- Treasury Department Logo -->
-            <div class="treasury-office">
-                <img src="../assets/BTr-removebg-preview.png" alt="Treasury Department Logo" class="treasury-logo">
-            </div>
-            <div class="title-logo">
-                <h1>DOCUMENT STATUS TAGGING SYSTEM</h1>
-                <p>Quick and Easy: Bureau of Treasury Document Status Tagging System</p>
-            </div>
-        </div>
-        <div class="login-content">
-            <!-- Login Form -->
-            <div class="login-form">
-                <h2>LOGIN INTO YOUR ACCOUNT</h2>
-                <form @submit.prevent="login">
-                    <input type="text" v-model="username" placeholder="Username" required>
-                    <input type="password" v-model="password" placeholder="Password" required>
-                    <button type="submit">LOGIN</button>
-                </form>
-                <p>Don't have an account? <router-link to="/signup">Sign up</router-link></p>
-            </div>
-            <!-- Registration Form -->
-            <div class="registration-form">
-                <h2>REGISTER AN ACCOUNT</h2>
-                <form @submit.prevent="register">
-                    <input type="text" v-model="registerUsername" placeholder="Username" required>
-                    <input type="password" v-model="registerPassword" placeholder="Password" required>
-                    <input type="text" v-model="name" placeholder="Name" required>
-                    <input type="email" v-model="email" placeholder="Email" required>
-                    <input type="text" v-model="department" placeholder="Department" required>
-                    <button type="submit">REGISTER</button>
-                </form>
-                <p>Already have an Account? <router-Link to="/">Login</router-Link></p>
-            </div>
-        </div>
+  <div class="login-container">
+    <!-- Overlay image -->
+    <div class="overlay-image">
+      <!-- Treasury Department Logo -->
+      <div class="treasury-office">
+        <img src="../assets/BTr-removebg-preview.png" alt="Treasury Department Logo" class="treasury-logo">
+      </div>
+      <div class="title-logo">
+        <h1>DOCUMENT STATUS TAGGING SYSTEM</h1>
+        <p>Quick and Easy: Bureau of Treasury Document Status Tagging System</p>
+      </div>
     </div>
+    <div class="login-content">
+      <!-- Login Form -->
+      <!-- <div class="login-form">
+        <h2>LOGIN INTO YOUR ACCOUNT</h2>
+        <form @submit.prevent="login">
+          <input type="text" v-model="username" placeholder="Username" required>
+          <input type="password" v-model="password" placeholder="Password" required>
+          <button type="submit">LOGIN</button>
+        </form>
+        <p>Don't have an account? <router-link to="/signup">Sign up</router-link></p>
+      </div> -->
+      <!-- Registration Form -->
+      <div class="registration-form">
+        <h2>REGISTER AN ACCOUNT</h2>
+        <form @submit.prevent="register">
+
+          <input type="text" v-model="name" placeholder="Name" required>
+          <input type="password" v-model="registerPassword" placeholder="Password" required>
+          <input type="email" v-model="email" placeholder="Email" required>
+          <input type="text" v-model="department" placeholder="Department" required>
+          <button type="submit">REGISTER</button>
+        </form>
+        <p>Already have an Account? <router-Link to="/">Login</router-Link></p>
+      </div>
+    </div>
+  </div>
 </template>
 
 <script>
 import { useRouter } from 'vue-router'
+import { supabase } from '../supabaseconfig.js';
+import { ref } from 'vue';
+
+
 
 export default {
   name: 'LoginPage',
@@ -51,9 +55,43 @@ export default {
       router.push('/')
     }
 
-    const register = () => {
-      // Handle registration logic here
-      router.push('/')
+    const email = ref('');
+    const registerPassword = ref('');
+    const name = ref('');
+    const department = ref('');
+
+    const register = async () => {
+      try {
+        console.log('email:', email.value);
+        console.log('password:', registerPassword.value);
+        console.log('department:', department.value);
+        console.log('name:', registerPassword.value);
+        const { user, error } = await supabase.auth.signUp({
+          email: email,
+          password: registerPassword,
+        });
+
+        // Handle successful registration (store user, redirect, etc.)
+        if (!error) {
+          console.log('Registration successful', user);
+          router.push('/') // Redirect to the home page or wherever
+
+          // Additional Step: Store other user data in Supabase
+          await supabase
+            .from('users') // Assuming you have a 'users' table
+            .insert([
+              {
+                id: user.id, // Link to the registered user's Supabase ID
+                name: name,
+                department: department
+              }
+            ]);
+        }
+
+      } catch (error) {
+        // Handle registration errors
+        console.error('Registration error:', error.message);
+      }
     }
 
     return {
@@ -61,7 +99,6 @@ export default {
       register,
       username: '',
       password: '',
-      registerUsername: '',
       registerPassword: '',
       name: '',
       email: '',
@@ -88,11 +125,14 @@ html {
   position: absolute;
   top: 0;
   left: 0;
-  width: 50%; /* Set width to cover the left half of the container */
+  width: 50%;
+  /* Set width to cover the left half of the container */
   height: 100%;
   border-bottom-right-radius: 70px;
-  background: linear-gradient(rgba(255, 255, 0, 0.418), rgba(255, 255, 0, 0.678)), url('../assets/btr-hq1.jpg') center/cover no-repeat; /* Set the background image for overlay */
-  z-index: 0; /* Ensure the overlay is behind other elements */
+  background: linear-gradient(rgba(255, 255, 0, 0.418), rgba(255, 255, 0, 0.678)), url('../assets/btr-hq1.jpg') center/cover no-repeat;
+  /* Set the background image for overlay */
+  z-index: 0;
+  /* Ensure the overlay is behind other elements */
 }
 
 .login-content {
@@ -108,7 +148,8 @@ html {
 }
 
 .title-logo {
-  text-align: center; /* Center text */
+  text-align: center;
+  /* Center text */
 }
 
 .treasury-office {
@@ -122,7 +163,8 @@ html {
 
 .treasury-logo {
   max-width: 60%;
-  position: relative; /* Set the position to relative */
+  position: relative;
+  /* Set the position to relative */
 }
 
 .login-form {
@@ -168,6 +210,7 @@ html {
 }
 
 .registration-form {
-  margin-top: 20px; /* Add some spacing between login and registration forms */
+  margin-top: 20px;
+  /* Add some spacing between login and registration forms */
 }
 </style>
