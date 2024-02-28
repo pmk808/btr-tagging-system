@@ -1,7 +1,8 @@
 <template>
   <div class="login-container">
     <div class="treasury-office">
-      <img src="/assets/BTr-hq" alt="Treasury Department Logo" class="treasury-logo">
+      <img src="../assets/BTr-hq.jpg" alt="Treasury Department Logo" class="treasury-logo">
+
     </div>
     <div class="login-form">
       <h2>Login</h2>
@@ -58,7 +59,7 @@ html {
 }
 
 .treasury-logo {
-  max-width: 80%;
+  max-width: 50%;
 }
 
 .login-form {
