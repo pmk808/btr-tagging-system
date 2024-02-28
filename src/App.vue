@@ -1,16 +1,28 @@
 <template>
   <img alt="Vue logo" src="./assets/logo.png">
+<<<<<<< Updated upstream
   <LoginPage/>
 
 </template>
 
 <script>
 import LoginPage from './components/LoginPage.vue'
+=======
+  <SignupPage />
+</template>
+
+<script>
+import SignupPage from './components/SignupPage.vue'
+>>>>>>> Stashed changes
 
 export default {
   name: 'App',
   components: {
+<<<<<<< Updated upstream
     LoginPage
+=======
+    SignupPage
+>>>>>>> Stashed changes
   }
 }
 </script>
