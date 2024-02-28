@@ -14,11 +14,11 @@
     <div class="login-content">
       <!-- Login Form -->
       <div class="login-form">
-        <h2>Login</h2>
+        <h2>LOGIN INTO YOUR ACCOUNT</h2>
         <form @submit.prevent="login">
           <input type="text" v-model="username" placeholder="Username" required>
           <input type="password" v-model="password" placeholder="Password" required>
-          <button type="submit">Login</button>
+          <button type="submit">LOGIN</button>
         </form>
         <p>Don't have an account? <router-link to="/signup">Sign up</router-link></p>
       </div>
@@ -64,19 +64,21 @@ html {
   left: 0;
   width: 50%; /* Set width to cover the left half of the container */
   height: 100%;
-  border-radius: 20px;
+  border-bottom-right-radius: 70px;
   background: linear-gradient(rgba(255, 255, 0, 0.418), rgba(255, 255, 0, 0.678)), url('../assets/btr-hq1.jpg') center/cover no-repeat; /* Set the background image for overlay */
   z-index: 0; /* Ensure the overlay is behind other elements */
 }
 
 .login-content {
   position: absolute;
-  top: 25%;
+  top: 20%;
   right: 0;
+  justify-content: center;
   width: 50%;
   height: 50%;
   display: flex;
   flex: 1;
+  border-top-left-radius: 70px;
 }
 
 .title-logo {
@@ -98,22 +100,23 @@ html {
 }
 
 .login-form {
-  flex: 1;
-  display: flex;
   justify-content: center;
   align-items: center;
   flex-direction: column;
   padding: 20px;
   border-radius: 20px;
   height: 100%;
-  border: 1px solid #003aa2; /* Add border */
-  background-color: #fff; /* Set background color */
+  font-family: Arial, Helvetica, sans-serif;
+  border: 1px solid gray;
+  box-shadow: 0 0 10px 0 #0039a29a;
+  background-color: #fff;
 }
 
 .login-form form {
   max-width: 300px;
   width: 100%;
-  border-radius: 20px;
+  border-radius: 15px;
+  padding: 10px;
 }
 
 .login-form input[type="text"],
