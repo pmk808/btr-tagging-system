@@ -11,8 +11,8 @@
             <h3>Sidebar</h3>
             <ul>
                 <li><router-link to="/dashboard">Dashboard</router-link></li>
-                <li><router-link to="/profile">Tagging</router-link></li>
-                <li><router-link to="/settings">Reports</router-link></li>
+                <li><router-link to="/tagging">Tagging</router-link></li>
+                <li><router-link to="/reports">Reports</router-link></li>
             </ul>
             <ul>
                 <li><router-link to="/">Logout</router-link></li>
