@@ -82,7 +82,7 @@ html {
   right: 0;
   justify-content: center;
   width: 50%;
-  height: 50%;
+  height: 60%;
   display: flex;
   flex: 1;
   border-top-left-radius: 70px;
@@ -122,6 +122,10 @@ html {
   background-color: #fff;
 }
 
+.login-form h2 {
+  color: #0038A7;
+}
+
 .login-form form {
   max-width: 300px;
   width: 100%;
@@ -132,7 +136,7 @@ html {
 .login-form input[type="text"],
 .login-form input[type="password"] {
   font-family: 'Poppins', sans-serif;
-  width: 90%;
+  width: 85%;
   border: 1px solid #0038A7;
   border-radius: 5px;
   padding: 10px;

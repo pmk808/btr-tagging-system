@@ -169,6 +169,10 @@ html {
   background-color: #fff;
 }
 
+.registration-form h2 {
+  color: #0038A7;
+}
+
 .registration-form form {
   max-width: 300px;
   width: 100%;
