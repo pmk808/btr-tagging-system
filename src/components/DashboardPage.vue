@@ -2,7 +2,7 @@
     <div class="dashboard-container">
       <!-- Header -->
       <div class="header">
-        <h1>Welcome to the Dashboard</h1>
+        <h1>Document Status Tagging System</h1>
         <p>Manage your documents efficiently</p>
       </div>
   
@@ -11,8 +11,11 @@
         <h3>Sidebar</h3>
         <ul>
           <li><router-link to="/dashboard">Dashboard</router-link></li>
-          <li><router-link to="/profile">Profile</router-link></li>
-          <li><router-link to="/settings">Settings</router-link></li>
+          <li><router-link to="/profile">Tagging</router-link></li>
+          <li><router-link to="/settings">Reports</router-link></li>
+        </ul>
+        <ul>
+            <li><router-link to="/">Logout</router-link></li>
         </ul>
       </div>
   
@@ -47,39 +50,43 @@
   
   /* Header Styles */
   .header {
-    background-color: #0038A7;
-    color: #fff;
+    color: #0038A7;
     padding: 20px;
+    border-bottom: 1px solid #000000;
+    margin-bottom: 20px;
   }
   
   .header h1 {
-    font-size: 24px;
+    font-size: 30px;
     margin-bottom: 10px;
   }
   
   /* Sidebar Styles */
   .sidebar {
     width: 20%;
-    background-color: #0038A7;
-    color: #fff;
+    height: 100%;
+    color: #0038A7;
     padding: 20px;
-  }
-  
+    border-right: 1px solid #000000;
+    box-shadow: 2px 0 1px #0038A7;  
+}
   .sidebar h3 {
-    margin-bottom: 20px;
+    margin-bottom: 50px;
   }
   
   .sidebar ul {
     list-style-type: none;
+    margin-bottom: 20px;
     padding: 0;
   }
   
   .sidebar ul li {
-    margin-bottom: 10px;
+    margin-bottom: 20px;
+    font-size: 20px;
   }
   
   .sidebar ul li a {
-    color: #fff;
+    color: #0038A7;
     text-decoration: none;
   }
   
