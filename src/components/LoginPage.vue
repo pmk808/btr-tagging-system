@@ -21,8 +21,13 @@
           <button type="submit">LOGIN</button>
         </form>
         <p>Don't have an account?
-            <router-link to="/signup">Sign up</router-link>
+          <router-link to="/signup" class="router-link">Sign up</router-link>
         </p>
+        <RouterView class="router-view" v-slot="{ Component }">
+            <Transition :name="fade" mode="out-in">
+              <component :is="Component" />
+            </Transition>
+          </RouterView>
       </div>
     </div>
   </div>
@@ -165,6 +170,26 @@ html {
   background-color: #FDD116;
 }
 
+.custom-slide-enter-active,
+.custom-slide-leave-active {
+  transition: transform 1s;
+}
+
+.custom-slide-enter,
+.custom-slide-leave-to {
+  transform: translateX(100%);
+}
+
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.5s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
+
 @media only screen and (max-width: 768px) {
   .login-container {
     flex-direction: column;
@@ -181,5 +206,4 @@ html {
     height: 50%;
     border-radius: 0;
   }
-}
-</style>
+}</style>

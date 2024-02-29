@@ -25,8 +25,13 @@
         </form>
         <p v-if="registrationError" class="error-message">{{ registrationError }}</p>
         <p>Already have an Account?
-          <router-Link to="/">Login</router-Link>
+            <router-link to="/" class="router-link">Login</router-link>
         </p>
+        <RouterView class="router-view" v-slot="{ Component }">
+            <Transition :name="fade" mode="out-in">
+              <component :is="Component" />
+            </Transition>
+          </RouterView>
       </div>
     </div>
   </div>
@@ -215,5 +220,12 @@ html {
 
 .registration-form {
   margin-top: 20px;
+}
+
+.fade-enter-active, .fade-leave-active {
+  transition: 600ms ease all;
+}
+.fade-enter, .fade-leave-to {
+  transform: translateX(-100%);
 }
 </style>
