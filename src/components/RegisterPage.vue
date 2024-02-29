@@ -1,5 +1,5 @@
 <template>
-  <div class="login-container">
+  <div class="register-container">
     <!-- Overlay image -->
     <div class="overlay-image">
       <!-- Treasury Department Logo -->
@@ -11,17 +11,7 @@
         <p>Quick and Easy: Bureau of Treasury Document Status Tagging System</p>
       </div>
     </div>
-    <div class="login-content">
-      <!-- Login Form -->
-      <!-- <div class="login-form">
-        <h2>LOGIN INTO YOUR ACCOUNT</h2>
-        <form @submit.prevent="login">
-          <input type="text" v-model="username" placeholder="Username" required>
-          <input type="password" v-model="password" placeholder="Password" required>
-          <button type="submit">LOGIN</button>
-        </form>
-        <p>Don't have an account? <router-link to="/signup">Sign up</router-link></p>
-      </div> -->
+    <div class="register-content">
       <!-- Registration Form -->
       <div class="registration-form">
         <h2>REGISTER AN ACCOUNT</h2>
@@ -33,7 +23,10 @@
           <input type="text" v-model="department" placeholder="Department" required>
           <button type="submit">REGISTER</button>
         </form>
-        <p>Already have an Account? <router-Link to="/">Login</router-Link></p>
+        <p v-if="registrationError" class="error-message">{{ registrationError }}</p>
+        <p>Already have an Account?
+          <router-Link to="/">Login</router-Link>
+        </p>
       </div>
     </div>
   </div>
@@ -47,10 +40,10 @@ import { ref } from 'vue';
 
 
 export default {
-  name: 'LoginPage',
+  name: 'RegisterPage',
   setup() {
     const router = useRouter()
-
+    const registrationError = ref('');
     const login = () => {
       router.push('/')
     }
@@ -72,25 +65,20 @@ export default {
         });
 
         // Handle successful registration (store user, redirect, etc.)
-        if (!error) {
-          console.log('Registration successful', user);
-          router.push('/') // Redirect to the home page or wherever
-
-          // Additional Step: Store other user data in Supabase
+        if (error) {
+          registrationError.value = error.message;
+        } else {
           await supabase
-            .from('users') // Assuming you have a 'users' table
-            .insert([
-              {
-                id: user.id, // Link to the registered user's Supabase ID
-                name: name,
-                department: department
-              }
-            ]);
+            .from('users')
+            .insert({
+              id: user.id,
+              name: name.value,
+              department: department.value
+            });
+          router.push('/');
         }
-
       } catch (error) {
-        // Handle registration errors
-        console.error('Registration error:', error.message);
+        registrationError.value = error.message;
       }
     }
 
@@ -102,21 +90,25 @@ export default {
       registerPassword: '',
       name: '',
       email: '',
-      department: ''
+      department: '',
+      registrationError
     }
   }
 };
 </script>
 
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap');
+
 body,
 html {
   margin: 0;
   padding: 0;
   height: 100%;
+  font-family: Poppins, sans-serif;
 }
 
-.login-container {
+.register-container {
   display: flex;
   height: 100%;
 }
@@ -124,32 +116,30 @@ html {
 .overlay-image {
   position: absolute;
   top: 0;
-  left: 0;
+  right: 0;
   width: 50%;
-  /* Set width to cover the left half of the container */
   height: 100%;
-  border-bottom-right-radius: 70px;
-  background: linear-gradient(rgba(255, 255, 0, 0.418), rgba(255, 255, 0, 0.678)), url('../assets/btr-hq1.jpg') center/cover no-repeat;
-  /* Set the background image for overlay */
+  border-top-left-radius: 70px;
+  border-bottom-left-radius: 70px;
+  background: linear-gradient(rgba(0, 56, 167, 0.514), rgb(0, 56, 167)), url('../assets/btr-hq1.jpg') center/cover no-repeat;
   z-index: 0;
-  /* Ensure the overlay is behind other elements */
 }
 
-.login-content {
+.register-content {
   position: absolute;
-  top: 20%;
-  right: 0;
+  top: 10%;
+  left: 0;
   justify-content: center;
   width: 50%;
-  height: 50%;
+  height: 70%;
   display: flex;
   flex: 1;
-  border-top-left-radius: 70px;
 }
 
 .title-logo {
+  font-family: 'Poppins', sans-serif;
   text-align: center;
-  /* Center text */
+  color: #fff;
 }
 
 .treasury-office {
@@ -164,32 +154,42 @@ html {
 .treasury-logo {
   max-width: 60%;
   position: relative;
-  /* Set the position to relative */
 }
 
-.login-form {
+.registration-form {
   justify-content: center;
   align-items: center;
   flex-direction: column;
   padding: 20px;
   border-radius: 20px;
   height: 100%;
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: 'Poppins', sans-serif;
   border: 1px solid gray;
-  box-shadow: 0 0 10px 0 #0039a29a;
+  box-shadow: 0 0 15px 0 #fdd116;
   background-color: #fff;
 }
 
-.login-form form {
+.registration-form form {
   max-width: 300px;
   width: 100%;
   border-radius: 15px;
   padding: 10px;
 }
 
-.login-form input[type="text"],
-.login-form input[type="password"],
-.login-form button {
+.registration-form input[type="text"],
+.registration-form input[type="password"],
+.registration-form input[type="email"] {
+  font-family: 'Poppins', sans-serif;
+  width: 90%;
+  border: 1px solid #0038A7;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 20px;
+}
+
+.registration-form button {
+  font-family: 'Poppins', sans-serif;
+  font-weight: bold;
   width: 100%;
   margin-bottom: 10px;
   padding: 10px;
@@ -199,18 +199,17 @@ html {
   outline: none;
 }
 
-.login-form button {
+.registration-form button {
   background-color: #0038A7;
   color: #fff;
   cursor: pointer;
 }
 
-.login-form button:hover {
+.registration-form button:hover {
   background-color: #FDD116;
 }
 
 .registration-form {
   margin-top: 20px;
-  /* Add some spacing between login and registration forms */
 }
 </style>
