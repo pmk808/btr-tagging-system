@@ -41,6 +41,7 @@ export default {
 </script>
   
 <style scoped>
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap');
 /* Dashboard Container */
 .dashboard-container {
     display: flex;
@@ -57,10 +58,11 @@ export default {
     background: linear-gradient(rgba(253, 211, 22, 0.767), rgba(253, 211, 22, 0.363)), url('../assets/btr-hq2.jpg') no-repeat;
     background-size: cover;
     background-position: center;
+    font-family: 'Poppins', sans-serif;
 }
 
 .header h1 {
-    font-size: 30px;
+    font-size: 40px;
     margin-bottom: 10px;
 }
 
@@ -72,6 +74,7 @@ export default {
     padding: 20px;
     border-right: 1px solid #000000;
     box-shadow: 2px 0 0 #0038A7;
+    font-family: 'Poppins', sans-serif;
 }
 
 .sidebar h3 {
@@ -127,8 +130,8 @@ export default {
 .footer {
     background-color: #0038A7;
     color: #fff;
-    padding: 20px;
     text-align: center;
+    font-family: 'Poppins', sans-serif;
 }
 </style>
   
