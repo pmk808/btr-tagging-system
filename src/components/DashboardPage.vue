@@ -52,7 +52,7 @@
   .header {
     color: #0038A7;
     padding: 20px;
-    border-bottom: 1px solid #000000;
+    box-shadow: 0 2px 0 0 #0038A7;
     margin-bottom: 20px;
   }
   
@@ -68,7 +68,7 @@
     color: #0038A7;
     padding: 20px;
     border-right: 1px solid #000000;
-    box-shadow: 2px 0 1px #0038A7;  
+    box-shadow: 2px 0 0 #0038A7;  
 }
   .sidebar h3 {
     margin-bottom: 50px;
