@@ -1,4 +1,3 @@
-// src/supabaseconfig.js 
 import { createClient } from '@supabase/supabase-js';
 
 const supabaseUrl = 'https://yszwlktldjrohxuneyop.supabase.co'; 

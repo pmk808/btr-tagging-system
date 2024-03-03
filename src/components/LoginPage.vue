@@ -19,39 +19,62 @@
           <input type="text" v-model="username" placeholder="Username" required>
           <input type="password" v-model="password" placeholder="Password" required>
           <button type="submit">LOGIN</button>
+          <p v-if="loginError" class="error-message">{{ loginError }}</p>
         </form>
         <p>Don't have an account?
           <router-link to="/signup" class="router-link">Sign up</router-link>
         </p>
         <RouterView class="router-view" v-slot="{ Component }">
-            <Transition :name="fade" mode="out-in">
-              <component :is="Component" />
-            </Transition>
-          </RouterView>
+          <Transition :name="fade" mode="out-in">
+            <component :is="Component" />
+          </Transition>
+        </RouterView>
       </div>
     </div>
   </div>
 </template>
 
-<script>
-import { useRouter } from 'vue-router'
+<script setup>
+import { useRouter } from 'vue-router';
+import { supabase } from '../supabaseconfig.js';
+import { ref } from 'vue';
 
-export default {
-  name: 'LoginPage',
-  setup() {
-    const router = useRouter()
+const router = useRouter();
+const username = ref('');
+const password = ref('');
+const loginError = ref('');
 
-    const login = () => {
-      router.push('/')
+const login = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('*')
+      .eq('username', username.value);
+
+    if (data.length > 0) {
+      const userData = data[0];
+
+      if (error) {
+        loginError.value = "User not found";
+        return;
+      }
+
+      if (userData.password !== password.value) {
+        loginError.value = "Incorrect password";
+        return;
+      }
+
+      router.push('/dashboard');
+    } else {
+      loginError.value = "User not found";
     }
-
-    return {
-      login,
-    }
+  } catch (error) {
+    loginError.value = "Authentication error: " + error.message;
   }
 };
+
 </script>
-  
+
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap');
 
@@ -206,4 +229,5 @@ html {
     height: 50%;
     border-radius: 0;
   }
-}</style>
+}
+</style>
