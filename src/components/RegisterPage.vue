@@ -17,7 +17,7 @@
         <h2>REGISTER AN ACCOUNT</h2>
         <form @submit.prevent="register">
 
-          <input type="text" v-model="name" placeholder="Name" required>
+          <input type="text" v-model="username" placeholder="Username" required>
           <input type="password" v-model="registerPassword" placeholder="Password" required>
           <input type="email" v-model="email" placeholder="Email" required>
           <input type="text" v-model="department" placeholder="Department" required>
@@ -25,79 +25,50 @@
         </form>
         <p v-if="registrationError" class="error-message">{{ registrationError }}</p>
         <p>Already have an Account?
-            <router-link to="/" class="router-link">Login</router-link>
+          <router-link to="/" class="router-link">Login</router-link>
         </p>
         <RouterView class="router-view" v-slot="{ Component }">
-            <Transition :name="fade" mode="out-in">
-              <component :is="Component" />
-            </Transition>
-          </RouterView>
+          <Transition :name="fade" mode="out-in">
+            <component :is="Component" />
+          </Transition>
+        </RouterView>
       </div>
     </div>
   </div>
 </template>
 
-<script>
-import { useRouter } from 'vue-router'
+<script setup>
+import { useRouter } from 'vue-router';
 import { supabase } from '../supabaseconfig.js';
 import { ref } from 'vue';
 
+const router = useRouter();
+const registrationError = ref('');
 
+const email = ref('');
+const registerPassword = ref('');
+const username = ref('');
+const department = ref('');
 
-export default {
-  name: 'RegisterPage',
-  setup() {
-    const router = useRouter()
-    const registrationError = ref('');
-    const login = () => {
-      router.push('/')
+const register = async () => {
+  try {
+
+    const { error } = await supabase
+      .from('users')
+      .insert({
+        username: username.value,
+        email: email.value,
+        password: registerPassword.value, // Important: Hash the password!
+        department: department.value
+      });
+
+    if (error) {
+      registrationError.value = error.message;
+    } else {
+      router.push('/'); // Redirect on success
     }
-
-    const email = ref('');
-    const registerPassword = ref('');
-    const name = ref('');
-    const department = ref('');
-
-    const register = async () => {
-      try {
-        console.log('email:', email.value);
-        console.log('password:', registerPassword.value);
-        console.log('department:', department.value);
-        console.log('name:', registerPassword.value);
-        const { user, error } = await supabase.auth.signUp({
-          email: email,
-          password: registerPassword,
-        });
-
-        // Handle successful registration (store user, redirect, etc.)
-        if (error) {
-          registrationError.value = error.message;
-        } else {
-          await supabase
-            .from('users')
-            .insert({
-              id: user.id,
-              name: name.value,
-              department: department.value
-            });
-          router.push('/');
-        }
-      } catch (error) {
-        registrationError.value = error.message;
-      }
-    }
-
-    return {
-      login,
-      register,
-      username: '',
-      password: '',
-      registerPassword: '',
-      name: '',
-      email: '',
-      department: '',
-      registrationError
-    }
+  } catch (error) {
+    registrationError.value = error.message;
   }
 };
 </script>
@@ -222,10 +193,13 @@ html {
   margin-top: 20px;
 }
 
-.fade-enter-active, .fade-leave-active {
+.fade-enter-active,
+.fade-leave-active {
   transition: 600ms ease all;
 }
-.fade-enter, .fade-leave-to {
+
+.fade-enter,
+.fade-leave-to {
   transform: translateX(-100%);
 }
 </style>
