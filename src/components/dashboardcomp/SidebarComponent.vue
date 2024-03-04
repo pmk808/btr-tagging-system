@@ -1,80 +1,111 @@
 <template>
-    <!-- Sidebar -->
-    <div :class="['sidebar', { 'collapsed': !sidebarVisible }]">
-      <button class="toggle-btn" @click="$emit('toggle-sidebar')">
-        {{ sidebarVisible ? 'Hide Sidebar' : 'Show Sidebar' }}
-      </button>
-      <h3>Sidebar</h3>
-      <ul>
-        <li><router-link to="/dashboard">Dashboard</router-link></li>
-        <li><router-link to="/tagging">Tagging</router-link></li>
-        <li><router-link to="/reports">Reports</router-link></li>
-      </ul>
-      <ul>
-        <li><router-link to="/">Logout</router-link></li>
-      </ul>
-    </div>
-  </template>
-  
-  <script>
-  export default {
-    props: ['sidebarVisible']
-  };
-  </script>
-  
-  <style scoped>
-  /* Sidebar Styles */
-  .sidebar {
-    width: 200px; /* Adjust the width as needed */
-    height: 100%;
-    float: left;
-    z-index: 2;
-    color: #fff;
-    background-color: #0038A7;
-    padding: 20px;
-    border-top-right-radius: 5px;
-    border-bottom-right-radius: 5px;
-    border-right: 1px solid #000000;
-    box-shadow: 1px 0 0 #0038A7;
-    font-family: 'Poppins', sans-serif;
-    transition: width 0.3s ease; /* Add transition for smooth animation */
-  }
-  
-  .sidebar.collapsed {
-    width: 0;
-    overflow: hidden;
-  }
-  
-  .sidebar h3 {
-    margin-bottom: 50px;
-  }
-  
-  .sidebar ul {
-    list-style-type: none;
-    margin-bottom: 20px;
-    padding: 0;
-  }
-  
-  .sidebar ul li {
-    margin-bottom: 20px;
-    font-size: 20px;
-  }
-  
-  .sidebar ul li a {
-    color: #fff;
-    text-decoration: none;
-    margin-bottom: 20px;
-    display: block;
-    padding: 31px;
-  }
-  
-  .sidebar ul li a:hover {
-    text-decoration: underline;
-  }
-  
-  .toggle-btn {
-    display: block;
-    margin-bottom: 20px;
-  }
-  </style>
-  
+  <!-- Sidebar -->
+  <div :class="['sidebar', { 'collapsed': !sidebarVisible }]">
+    <span class="toggle-btn" @click="$emit('toggle-Sidebar')">
+      <font-awesome-icon :icon="sidebarVisible ? ['fas', 'bars'] : ['fas', 'angles-right']" />
+    </span>
+    <ul>
+      <li :class="{ 'active': $route.path === '/dashboard' }"><router-link to="/dashboard">
+          <span class="icons">
+            <font-awesome-icon :icon="['fas', 'house']" /></span>Dashboard</router-link></li>
+      <li :class="{ 'active': $route.path === '/tagging' }"><router-link to="/tagging">
+          <span class="icons"><font-awesome-icon :icon="['fas', 'tags']" /></span>Tagging
+        </router-link></li>
+      <li :class="{ 'active': $route.path === '/reports' }"><router-link to="/reports">
+          <span class="icons">
+            <font-awesome-icon :icon="['fas', 'chart-area']" /></span>Reports</router-link></li>
+    </ul>
+    <ul>
+      <li><router-link to="/"><font-awesome-icon :icon="['fas', 'right-from-bracket']" />Logout</router-link></li>
+    </ul>
+  </div>
+</template>
+
+<script>
+import '@fortawesome/fontawesome-free/js/all.js';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+export default {
+  components: {
+    FontAwesomeIcon
+  },
+  props: ['sidebarVisible']
+};
+</script>
+
+<style scoped>
+/* Sidebar Styles */
+.sidebar {
+  width: 210px;
+  height: 100%;
+  float: left;
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  z-index: 1;
+  color: #fff;
+  background-color: #0038A7;
+  padding: 20px;
+  border-top-right-radius: 5px;
+  border-bottom-right-radius: 5px;
+  border-right: 1px solid #000000;
+  box-shadow: 1px 0 0 #0038A7;
+  font-family: 'Poppins', sans-serif;
+  flex-direction: column;
+  transition: 0.5s ease;
+}
+
+.sidebar.collapsed {
+  width: 0;
+  overflow: auto;
+  bottom: 0;
+  margin-right: 1em;
+}
+
+.icons {
+  padding-right: 10px;
+}
+
+.sidebar ul {
+  list-style-type: none;
+  margin-bottom: 20px;
+  padding: 0;
+}
+
+.sidebar ul li {
+  margin-bottom: 20px;
+  font-size: 20px;
+}
+
+.sidebar ul li a {
+  color: #fff;
+  text-decoration: none;
+  margin-bottom: 40px;
+  display: block;
+  padding: 10px;
+  font-size: 20px;
+}
+
+.sidebar ul li a:hover {
+  text-decoration: underline;
+}
+
+.sidebar ul li a:active {
+  color: #fff;
+  background-color: #fdd116;
+}
+
+.active {
+  background-color: #fdd116;
+  color: #0038A7;
+  font-weight: bold;
+  border-radius: 8px;
+}
+
+.toggle-btn {
+  background-color: #0038A7;
+  color: #fff;
+  font-size: 20px;
+  margin-bottom: 20px;
+}
+</style>
