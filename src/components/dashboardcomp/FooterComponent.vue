@@ -8,6 +8,10 @@
 <style scoped>
 /* Footer Styles */
 .footer {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    width: 100%;
     background-color: #0038A7;
     color: #fff;
     text-align: center;

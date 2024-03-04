@@ -1,7 +1,7 @@
 <template>
     <div class="dashboard-container">
         <HeaderComponent />
-        <SidebarComponent />
+        <SidebarComponent :sidebar-visible="sidebarVisible" @toggle-sidebar="toggleSidebar" />
         <!-- Main Content -->
         <div class="main-content">
             <!-- Dashboard Content -->
@@ -25,6 +25,15 @@ export default {
         HeaderComponent,
         SidebarComponent,
         FooterComponent
+    }, data () {
+        return {
+            sidebarVisible: true
+        };
+    },
+    methods: {
+        toggleSidebar() {
+            this.sidebarVisible = !this.sidebarVisible;
+        }
     }
 };
 </script>
@@ -43,7 +52,8 @@ export default {
 .main-content {
     display: flex;
     flex: 1;
-    padding: 20px;
+    padding: 15px;
+    
 }
 
 /* Dashboard Content Styles */

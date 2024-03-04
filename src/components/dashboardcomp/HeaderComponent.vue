@@ -9,9 +9,12 @@
   /* Header Styles */
   .header {
     color: #0038A7;
-    padding: 20px;
-    box-shadow: 0 2px 0 0 #0038A7;
-    margin-bottom: 20px;
+    position: fixed;
+    top: 0;
+    right: 0;
+    width: 100%;
+    padding: 15px;
+    margin-bottom: 5px;
     background: linear-gradient(rgba(253, 211, 22, 0.767), rgba(253, 211, 22, 0.363)), url('../dashboardcomp/btr-hq2.jpg') no-repeat;
     background-size: cover;
     background-position: center;
@@ -20,7 +23,7 @@
   
   .header h1 {
     font-size: 40px;
-    margin-bottom: 10px;
+    margin-bottom: 5px;
   }
   </style>
   
