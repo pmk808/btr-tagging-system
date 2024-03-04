@@ -1,11 +1,7 @@
 <template>
     <div class="dashboard-container">
         <HeaderComponent />
-
-        <!-- Sidebar -->
-
         <SidebarComponent />
-
         <!-- Main Content -->
         <div class="main-content">
             <!-- Dashboard Content -->
