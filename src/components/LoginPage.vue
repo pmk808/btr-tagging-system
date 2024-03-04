@@ -16,8 +16,8 @@
       <div class="login-form">
         <h2>LOGIN INTO YOUR ACCOUNT</h2>
         <form @submit.prevent="login">
-          <input type="text" v-model="email" placeholder="Email" required>
-          <input type="password" v-model="password" placeholder="Password" required>
+          <input type="text" v-model="email" placeholder="Email" required autocomplete="off">
+          <input type="password" v-model="password" placeholder="Password" required autocomplete="off">
           <button type="submit">LOGIN</button>
           <p v-if="loginError" class="error-message">{{ loginError }}</p>
         </form>

@@ -13,8 +13,10 @@
     "@fortawesome/vue-fontawesome": "^3.0.6",
     "@supabase/supabase-js": "^2.39.7",
     "core-js": "^3.8.3",
+    "jsonwebtoken": "^9.0.2",
     "vue": "^3.4.20",
-    "vue-router": "^4.3.0"
+    "vue-router": "^4.3.0",
+    "vuex": "^4.1.0"
   },
   "devDependencies": {
     "@babel/core": "^7.12.16",
