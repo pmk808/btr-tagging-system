@@ -16,7 +16,7 @@
       <div class="login-form">
         <h2>LOGIN INTO YOUR ACCOUNT</h2>
         <form @submit.prevent="login">
-          <input type="text" v-model="username" placeholder="Username" required>
+          <input type="text" v-model="email" placeholder="Email" required>
           <input type="password" v-model="password" placeholder="Password" required>
           <button type="submit">LOGIN</button>
           <p v-if="loginError" class="error-message">{{ loginError }}</p>
@@ -40,36 +40,24 @@ import { supabase } from '../supabaseconfig.js';
 import { ref } from 'vue';
 
 const router = useRouter();
-const username = ref('');
+const email = ref('');
 const password = ref('');
 const loginError = ref('');
 
 const login = async () => {
   try {
-    const { data, error } = await supabase
-      .from('users')
-      .select('*')
-      .eq('username', username.value);
+    const { error } = await supabase.auth.signInWithPassword({
+      email: email.value,
+      password: password.value
+    });
 
-    if (data.length > 0) {
-      const userData = data[0];
-
-      if (error) {
-        loginError.value = "User not found";
-        return;
-      }
-
-      if (userData.password !== password.value) {
-        loginError.value = "Incorrect password";
-        return;
-      }
-
-      router.push('/dashboard');
+    if (error) {
+      loginError.value = error.message;
     } else {
-      loginError.value = "User not found";
+      router.push('/dashboard');
     }
   } catch (error) {
-    loginError.value = "Authentication error: " + error.message;
+    loginError.value = error.message;
   }
 };
 
