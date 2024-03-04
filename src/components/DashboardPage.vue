@@ -1,41 +1,27 @@
 <template>
     <div class="dashboard-container">
-        <HeaderComponent />
-        <SidebarComponent :sidebar-visible="sidebarVisible" @toggle-sidebar="toggleSidebar" />
-        <!-- Main Content -->
-        <div class="main-content">
-            <!-- Dashboard Content -->
-            <div class="dashboard-content">
-                <!-- Placeholders for Dashboard Widgets -->
-            </div>
-        </div>
-
-        <FooterComponent />
-    </div>
-</template>
+      <HeaderComponent />
+      <SidebarComponent :sidebar-visible="sidebarVisible" @toggle-sidebar="toggleSidebar" />
+      <div class="main-content">
+        <div class="dashboard-content" v-if="isLoggedIn">
+          </div>
+      </div>
   
-<script>
+      <FooterComponent />
+    </div>
+  </template>
+  
+<script setup>
+import { ref } from 'vue';
 import HeaderComponent from '../components/dashboardcomp/HeaderComponent.vue';
 import SidebarComponent from '../components/dashboardcomp/SidebarComponent.vue';
 import FooterComponent from '../components/dashboardcomp/FooterComponent.vue';
 
-export default {
-    name: 'DashboardPage',
-    components: {
-        HeaderComponent,
-        SidebarComponent,
-        FooterComponent
-    }, data () {
-        return {
-            sidebarVisible: true
-        };
-    },
-    methods: {
-        toggleSidebar() {
-            this.sidebarVisible = !this.sidebarVisible;
-        }
-    }
-};
+const sidebarVisible = ref(true); 
+
+function toggleSidebar() {
+  sidebarVisible.value = !sidebarVisible.value;
+}
 </script>
   
 <style scoped>
