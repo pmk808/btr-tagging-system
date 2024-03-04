@@ -17,7 +17,7 @@
         <h2>REGISTER AN ACCOUNT</h2>
         <form @submit.prevent="register">
 
-          <input type="text" v-model="email" placeholder="Email" required>
+          <input type="text" v-model="username" placeholder="Username" required>
           <input type="password" v-model="registerPassword" placeholder="Password" required>
           <input type="email" v-model="email" placeholder="Email" required>
           <select v-model="department">
