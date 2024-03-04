@@ -20,7 +20,13 @@
           <input type="text" v-model="username" placeholder="Username" required>
           <input type="password" v-model="registerPassword" placeholder="Password" required>
           <input type="email" v-model="email" placeholder="Email" required>
-          <input type="text" v-model="department" placeholder="Department" required>
+          <select v-model="department">
+            <option disabled value="">Select Department</option>
+            <option value="desk">Front Desk</option>
+            <option value="regional">Regional Office</option>
+            <option value="provincial">Provincial Office</option>
+            <option value="accounting">Accounting Office</option>
+          </select>
           <button type="submit">REGISTER</button>
         </form>
         <p v-if="registrationError" class="error-message">{{ registrationError }}</p>
@@ -161,6 +167,15 @@ html {
 .registration-form input[type="email"] {
   font-family: 'Poppins', sans-serif;
   width: 90%;
+  border: 1px solid #0038A7;
+  border-radius: 5px;
+  padding: 10px;
+  margin-bottom: 20px;
+}
+
+.registration-form select{
+  font-family: 'Poppins', sans-serif;
+  width: 95%;
   border: 1px solid #0038A7;
   border-radius: 5px;
   padding: 10px;
