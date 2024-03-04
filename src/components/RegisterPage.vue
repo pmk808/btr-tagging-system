@@ -17,7 +17,7 @@
         <h2>REGISTER AN ACCOUNT</h2>
         <form @submit.prevent="register">
 
-          <input type="text" v-model="username" placeholder="Username" required>
+          <input type="text" v-model="email" placeholder="Email" required>
           <input type="password" v-model="registerPassword" placeholder="Password" required>
           <input type="email" v-model="email" placeholder="Email" required>
           <select v-model="department">
@@ -59,14 +59,16 @@ const department = ref('');
 const register = async () => {
   try {
 
-    const { error } = await supabase
-      .from('users')
-      .insert({
-        username: username.value,
-        email: email.value,
-        password: registerPassword.value, // Important: Hash the password!
-        department: department.value
-      });
+    const { error } = await supabase.auth.signUp({  
+      email: email.value,
+      password: registerPassword.value,
+      options: { 
+        data: {
+          username: username.value,
+          department: department.value
+        } 
+      }
+    });
 
     if (error) {
       registrationError.value = error.message;
