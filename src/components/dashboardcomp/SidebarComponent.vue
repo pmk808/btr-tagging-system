@@ -16,7 +16,9 @@
             <font-awesome-icon :icon="['fas', 'chart-area']" /></span>Reports</router-link></li>
     </ul>
     <ul>
-      <li><router-link to="/"><font-awesome-icon :icon="['fas', 'right-from-bracket']" />Logout</router-link></li>
+      <li :class="{ 'active': $route.path === '/' }"><router-link to="/">
+          <span class="icons">
+            <font-awesome-icon :icon="['fas', 'right-from-bracket']" /></span>Logout</router-link></li>
     </ul>
   </div>
 </template>
@@ -45,7 +47,7 @@ export default {
   z-index: 1;
   color: #fff;
   background-color: #0038A7;
-  padding: 20px;
+  padding: 25px;
   border-top-right-radius: 5px;
   border-bottom-right-radius: 5px;
   border-right: 1px solid #000000;
@@ -64,6 +66,11 @@ export default {
 
 .icons {
   padding-right: 10px;
+  padding-left: 15px;
+  white-space: nowrap;
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sidebar ul {
@@ -84,6 +91,9 @@ export default {
   display: block;
   padding: 10px;
   font-size: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sidebar ul li a:hover {
