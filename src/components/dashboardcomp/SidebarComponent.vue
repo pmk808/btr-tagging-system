@@ -37,7 +37,7 @@ export default {
 <style scoped>
 /* Sidebar Styles */
 .sidebar {
-  width: 210px;
+  width: 200px;
   height: 100%;
   float: left;
   position: fixed;
@@ -47,7 +47,7 @@ export default {
   z-index: 1;
   color: #fff;
   background-color: #0038A7;
-  padding: 25px;
+  padding: 20px;
   border-top-right-radius: 5px;
   border-bottom-right-radius: 5px;
   border-right: 1px solid #000000;
