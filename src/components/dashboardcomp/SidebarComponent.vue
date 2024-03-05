@@ -26,11 +26,24 @@
 <script>
 import '@fortawesome/fontawesome-free/js/all.js';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import { supabase } from '../../supabaseconfig.js';
 export default {
   components: {
     FontAwesomeIcon
   },
-  props: ['sidebarVisible']
+  props: ['sidebarVisible'],
+  methods: {
+    async signOut() {
+      const { error } = await supabase.auth.signOut();
+      if (error) {
+        console.error('Sign out error:', error);
+        // Handle the error (e.g., display an error message)
+      } else {
+        // Successfully signed out 
+        this.$router.push('/'); // Redirect to the login page (or another suitable route)
+      }
+    }
+  },
 };
 </script>
 
