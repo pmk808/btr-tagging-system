@@ -18,7 +18,10 @@
         <form @submit.prevent="login">
           <input type="text" v-model="email" placeholder="Email" required autocomplete="off">
           <input type="password" v-model="password" placeholder="Password" required autocomplete="off">
-          <button type="submit">LOGIN</button>
+          <button :disabled="loading" type="submit">
+            <span v-if="loading">Logging In...</span>
+            <span v-else>LOGIN</span>
+          </button>
           <p v-if="loginError" class="error-message">{{ loginError }}</p>
         </form>
         <p>Don't have an account?
@@ -43,8 +46,10 @@ const router = useRouter();
 const email = ref('');
 const password = ref('');
 const loginError = ref('');
+const loading = ref(false);
 
 const login = async () => {
+  loading.value = true;
   try {
     const { error } = await supabase.auth.signInWithPassword({
       email: email.value,
@@ -58,6 +63,8 @@ const login = async () => {
     }
   } catch (error) {
     loginError.value = error.message;
+  } finally {
+    loading.value = false;
   }
 };
 
