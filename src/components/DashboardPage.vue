@@ -8,6 +8,11 @@
         <table class="document-table">
           <thead>
             <tr>
+                <th colspan="15">
+                  <button class="generateReport" @click="generateReport">Generate Report&nbsp;<font-awesome-icon :icon="['fas', 'download']" /></button>
+                </th>
+              </tr>
+            <tr>
               <th>Document Code</th>
               <th>Document Type</th>
               <th>Document Title</th>
@@ -36,6 +41,8 @@ import HeaderComponent from '../components/dashboardcomp/HeaderComponent.vue';
 import SidebarComponent from '../components/dashboardcomp/SidebarComponent.vue';
 import FooterComponent from '../components/dashboardcomp/FooterComponent.vue';
 import TableBodyContents from '../components/TableBodyContents.vue';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import '@fortawesome/fontawesome-free/js/all.js';
 
 const sidebarVisible = ref(true);
 const isLoggedIn = ref(true);
@@ -79,6 +86,15 @@ function toggleSidebar() {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   grid-gap: 20px;
+}
+
+.generateReport { 
+  background-color: #fdd116;
+  font-size: 15px;
+  color: #fff;
+  border-radius: 5px;
+  padding: 5px;
+  margin-left: auto;
 }
 
 .document-table {
