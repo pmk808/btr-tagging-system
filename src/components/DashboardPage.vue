@@ -1,6 +1,8 @@
 <template>
   <div class="dashboard-container">
+    <div class="HeaderComponent">
     <HeaderComponent />
+    </div>
     <div class="main-wrapper" :class="{ 'sidebar-collapsed': !sidebarVisible }">
       <SidebarComponent :sidebar-visible="sidebarVisible" @toggle-sidebar="toggleSidebar" />
       <div class="main-content">
@@ -10,8 +12,7 @@
               <tr>
                 <th colspan="15">
                   <button class="generateReport" @click="generateReport">Generate Report&nbsp;
-                    <font-awesome-icon
-                      :icon="['fas', 'download']" /></button>
+                    <font-awesome-icon :icon="['fas', 'download']" /></button>
                 </th>
               </tr>
               <tr>
@@ -73,10 +74,19 @@ function toggleSidebar() {
   transition: width 500ms;
 }
 
+.HeaderComponent {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+}
+
 .main-wrapper {
   display: flex;
   flex: 1;
   transition: margin-left 500ms;
+  position: relative;
 }
 
 .main-wrapper.sidebar-collapsed {
