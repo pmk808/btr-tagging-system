@@ -118,4 +118,8 @@ export default {
   font-size: 20px;
   margin-bottom: 20px;
 }
+
+.toggle-btn:hover {
+  cursor: pointer;
+}
 </style>
