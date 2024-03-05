@@ -1,9 +1,19 @@
 <template>
      <!-- Footer -->
      <div class="footer">
-            <p>&copy; 2024 Your Company</p>
+            <span><font-awesome-icon :icon="['far', 'copyright']" /> 2024 Coded by Brylle and Mcphy</span>
         </div>
 </template>
+
+<script>
+import {FontAwesomeIcon} from '@fortawesome/vue-fontawesome';
+import '@fortawesome/fontawesome-free/js/all.js';
+export default {
+    components: {
+        FontAwesomeIcon
+    }
+}
+</script>
 
 <style scoped>
 /* Footer Styles */
@@ -16,5 +26,6 @@
     color: #fff;
     text-align: center;
     font-family: 'Poppins', sans-serif;
+    font-size: 12px;
 }
 </style>

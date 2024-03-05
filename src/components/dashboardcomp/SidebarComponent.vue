@@ -16,7 +16,9 @@
             <font-awesome-icon :icon="['fas', 'chart-area']" /></span>Reports</router-link></li>
     </ul>
     <ul>
-      <li><router-link to="/"><font-awesome-icon :icon="['fas', 'right-from-bracket']" />Logout</router-link></li>
+      <li :class="{ 'active': $route.path === '/' }"><router-link to="/">
+          <span class="icons">
+            <font-awesome-icon :icon="['fas', 'right-from-bracket']" /></span>Logout</router-link></li>
     </ul>
   </div>
 </template>
@@ -35,7 +37,7 @@ export default {
 <style scoped>
 /* Sidebar Styles */
 .sidebar {
-  width: 210px;
+  width: 200px;
   height: 100%;
   float: left;
   position: fixed;
@@ -64,6 +66,11 @@ export default {
 
 .icons {
   padding-right: 10px;
+  padding-left: 15px;
+  white-space: nowrap;
+  display: inline-block;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sidebar ul {
@@ -84,6 +91,9 @@ export default {
   display: block;
   padding: 10px;
   font-size: 20px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .sidebar ul li a:hover {
@@ -107,5 +117,9 @@ export default {
   color: #fff;
   font-size: 20px;
   margin-bottom: 20px;
+}
+
+.toggle-btn:hover {
+  cursor: pointer;
 }
 </style>
