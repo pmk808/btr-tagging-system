@@ -15,8 +15,7 @@
       <!-- Registration Form -->
       <div class="registration-form">
         <h2>REGISTER AN ACCOUNT</h2>
-        <form @submit.prevent="register">
-
+        <form @submit.prevent="register" :class="{ 'error': registrationError }">
           <input type="email" v-model="email" placeholder="Email" required>
           <input type="password" v-model="registerPassword" placeholder="Password" required>
           <input type="text" v-model="name" placeholder="Name" required>
@@ -27,9 +26,12 @@
             <option value="provincial">Provincial Office</option>
             <option value="accounting">Accounting Office</option>
           </select>
-          <button type="submit">REGISTER</button>
+          <button :disabled="loading" type="submit">
+            <span v-if="loading">Registering...</span>
+            <span v-else>REGISTER</span>
+          </button>
+          <p v-if="registrationError" class="error-message">{{ registrationError }}</p>
         </form>
-        <p v-if="registrationError" class="error-message">{{ registrationError }}</p>
         <p>Already have an Account?
           <router-link to="/" class="router-link">Login</router-link>
         </p>
@@ -50,38 +52,45 @@ import { ref } from 'vue';
 
 const router = useRouter();
 const registrationError = ref('');
+const loading = ref(false);
 
 const email = ref('');
 const registerPassword = ref('');
-const username = ref('');
+const name = ref('');
 const department = ref('');
 
 const register = async () => {
+  loading.value = true;
   try {
-
     if (!department.value) {
       registrationError.value = "Please select a department";
       return;
     }
 
-    const { error } = await supabase.auth.signUp({  
+    const { error } = await supabase.auth.signUp({
       email: email.value,
-      password: registerPassword.value,
-      options: { 
-        data: {
-          username: username.value,
-          department: department.value
-        } 
-      }
+      password: registerPassword.value
     });
 
     if (error) {
       registrationError.value = error.message;
     } else {
-      router.push('/'); // Redirect on success
+      // After successful registration, store additional user details in the Supabase users table
+      const { error } = await supabase
+        .from('users')
+        .insert([{ email: email.value, name: name.value, department: department.value }]);
+
+      if (error) {
+        registrationError.value = error.message;
+      } else {
+        // Redirect on success
+        router.push('/');
+      }
     }
   } catch (error) {
     registrationError.value = error.message;
+  } finally {
+    loading.value = false;
   }
 };
 </script>
