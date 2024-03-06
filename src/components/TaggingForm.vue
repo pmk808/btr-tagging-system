@@ -1,5 +1,5 @@
 <template>
-    <div class="modal-overlay" @click="closeModal">
+    <div class="modal-overlay">
       <div class="modal-dialog">
         <div class="modal-content tagging-form-modal">
           <div class="modal-header">

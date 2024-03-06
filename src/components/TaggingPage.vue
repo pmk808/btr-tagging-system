@@ -32,7 +32,6 @@
       </div>
       <FooterComponent />
     </div>
-    <!-- Add New Form Modal -->
     <TaggingForm v-if="showModal" @close-modal="closeAddNewFormModal" />
   </div>
 </template>
@@ -153,4 +152,5 @@ function closeAddNewFormModal() {
     margin-top: 10px;
   }
 }
+
 </style>
