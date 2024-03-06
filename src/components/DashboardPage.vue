@@ -1,37 +1,39 @@
 <template>
   <div class="dashboard-container">
+    <div class="HeaderComponent">
     <HeaderComponent />
+    </div>
     <div class="main-wrapper" :class="{ 'sidebar-collapsed': !sidebarVisible }">
-    <SidebarComponent :sidebar-visible="sidebarVisible" @toggle-sidebar="toggleSidebar" />
-    <div class="main-content">
-      <div class="dashboard-content" v-if="isLoggedIn">
-        <table class="document-table">
-          <thead>
-            <tr>
+      <SidebarComponent :sidebar-visible="sidebarVisible" @toggle-sidebar="toggleSidebar" />
+      <div class="main-content">
+        <div class="dashboard-content" v-if="isLoggedIn">
+          <table class="document-table">
+            <thead>
+              <tr>
                 <th colspan="15">
-                  <button class="generateReport" @click="generateReport">Generate Report&nbsp;<font-awesome-icon :icon="['fas', 'download']" /></button>
+                  <button class="generateReport" @click="generateReport">Generate Report&nbsp;
+                    <font-awesome-icon :icon="['fas', 'download']" /></button>
                 </th>
               </tr>
-            <tr>
-              <th>Document Code</th>
-              <th>Document Type</th>
-              <th>Document Title</th>
-              <th>Action Needed</th>
-              <th>Agency/Source</th>
-              <th>Received By/from</th>
-              <th>Date Received</th>
-              <th>Forwarded To:</th>
-              <th>Date</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <TableBodyContents />
-        </table>
+              <tr>
+                <th>Document Code</th>
+                <th>Document Type</th>
+                <th>Document Title</th>
+                <th>Action Needed</th>
+                <th>Agency/Source</th>
+                <th>Received By/from</th>
+                <th>Date Received</th>
+                <th>Forwarded To:</th>
+                <th>Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <TableBodyContents />
+          </table>
+        </div>
       </div>
+      <FooterComponent />
     </div>
-
-    <FooterComponent />
-  </div>
   </div>
 </template>
 
@@ -74,10 +76,19 @@ function toggleSidebar() {
   transition: width 500ms;
 }
 
+.HeaderComponent {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 3;
+}
+
 .main-wrapper {
   display: flex;
   flex: 1;
   transition: margin-left 500ms;
+  position: relative;
 }
 
 .main-wrapper.sidebar-collapsed {
@@ -90,13 +101,19 @@ function toggleSidebar() {
   grid-gap: 20px;
 }
 
-.generateReport { 
+.generateReport {
   background-color: #fdd116;
   font-size: 15px;
   color: #fff;
   border-radius: 5px;
   padding: 5px;
   margin-left: auto;
+}
+
+.generateReport:hover {
+  background-color: #fdd116;
+  color: #0038A7;
+  transition: 0.5s ease;
 }
 
 .document-table {
@@ -119,5 +136,23 @@ function toggleSidebar() {
 .document-table th {
   background-color: #0038A7;
   color: #f2f2f2;
+}
+
+@media screen and (max-width: 768px) {
+  .main-content {
+    padding: 15px 10px;
+    margin-top: 100px;
+  }
+}
+
+@media screen and (max-width: 576px) {
+  .main-wrapper {
+    flex-direction: column;
+  }
+
+  .generateReport {
+    margin-left: 0;
+    margin-top: 10px;
+  }
 }
 </style>

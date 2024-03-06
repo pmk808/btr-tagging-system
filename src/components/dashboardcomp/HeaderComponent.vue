@@ -18,6 +18,7 @@
     background-size: cover;
     background-position: center;
     font-family: 'Poppins', sans-serif;
+    z-index: 2;
   }
   
   .header h1 {
