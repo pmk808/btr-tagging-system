@@ -4,6 +4,7 @@ import RegisterPage from './components/RegisterPage.vue'
 import LoadingComponent from './components/dashboardcomp/LoadingComponent.vue';
 import DashboardPage from './components/DashboardPage.vue';
 import TaggingPage from './components/TaggingPage.vue';
+import TaggingForm from './components/TaggingForm.vue';
 import ReportsPage from './components/ReportsPage.vue';
 
 const routes = [
@@ -12,7 +13,8 @@ const routes = [
   { path: '/dashboard', component: DashboardPage, meta: { requiresAuth: true } }, // Protect dashboard route
   { path: '/tagging', component: TaggingPage, meta: { requiresAuth: true } }, // Protect tagging route
   { path: '/reports', component: ReportsPage, meta: { requiresAuth: true } }, // Protect reports route
-  { path: '/loading', component: LoadingComponent } // Add loading route
+  { path: '/loading', component: LoadingComponent }, // Add loading route
+  { path: '/taggingForm', component: TaggingForm, meta: { requiresAuth: true } },
 ];
 
 const router = createRouter({

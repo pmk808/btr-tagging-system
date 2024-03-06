@@ -1,56 +1,69 @@
 <template>
-    <div class="tagging-container">
-        <HeaderComponent />
-        <div class="main-wrapper" :class="{ 'sidebar-collapsed': !sidebarVisible }">
-        <SidebarComponent :sidebar-visible="sidebarVisible" @toggle-sidebar="toggleSidebar" />
-        <div class="main-content">
-            <div class="tagging-content" v-if="isLoggedIn">
-                <table class="document-table">
-          <thead>
-            <tr>
+  <div class="tagging-container">
+    <HeaderComponent />
+    <div class="main-wrapper" :class="{ 'sidebar-collapsed': !sidebarVisible }">
+      <SidebarComponent :sidebar-visible="sidebarVisible" @toggle-sidebar="toggleSidebar" />
+      <div class="main-content">
+        <div class="tagging-content" v-if="isLoggedIn">
+          <table class="document-table">
+            <thead>
+              <tr>
                 <th colspan="15">
-                  <button class="generateReport" @click="generateReport">Add New Form&nbsp;
+                  <button class="generateForm" @click="showAddNewFormModal">Add New Form&nbsp;
                     <font-awesome-icon :icon="['fas', 'file']" /></button>
                 </th>
               </tr>
-            <tr>
-              <th>Document Code</th>
-              <th>Document Type</th>
-              <th>Document Title</th>
-              <th>Action Needed</th>
-              <th>Agency/Source</th>
-              <th>Received By/from</th>
-              <th>Date Received</th>
-              <th>Forwarded To:</th>
-              <th>Date</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <TableBodyContents />
-        </table>
-            </div>
+              <tr>
+                <th>Document Code</th>
+                <th>Document Type</th>
+                <th>Document Title</th>
+                <th>Action Needed</th>
+                <th>Agency/Source</th>
+                <th>Received By/from</th>
+                <th>Date Received</th>
+                <th>Forwarded To:</th>
+                <th>Date</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <TableBodyContents />
+          </table>
         </div>
-        <FooterComponent />
+      </div>
+      <FooterComponent />
     </div>
-    </div>
+    <!-- Add New Form Modal -->
+    <TaggingForm v-if="showModal" @close-modal="closeAddNewFormModal" />
+  </div>
 </template>
-  
+
 <script setup>
 import { ref } from 'vue';
 import HeaderComponent from '../components/dashboardcomp/HeaderComponent.vue';
 import SidebarComponent from '../components/dashboardcomp/SidebarComponent.vue';
 import FooterComponent from '../components/dashboardcomp/FooterComponent.vue';
 import TableBodyContents from '../components/TableBodyContents.vue';
+import TaggingForm from '../components/TaggingForm.vue'; // Import the modal component
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import '@fortawesome/fontawesome-free/js/all.js';
 
 const sidebarVisible = ref(true);
 const isLoggedIn = ref(true);
+const showModal = ref(false);
 
 function toggleSidebar() {
   sidebarVisible.value = !sidebarVisible.value;
 }
-</script>  
+
+function showAddNewFormModal() {
+  showModal.value = true;
+}
+
+function closeAddNewFormModal() {
+  showModal.value = false;
+}
+</script> 
+
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap');
 
@@ -86,7 +99,7 @@ function toggleSidebar() {
   grid-gap: 20px;
 }
 
-.generateReport {
+.generateForm {
   background-color: #fdd116;
   font-size: 15px;
   color: #fff;
@@ -95,7 +108,7 @@ function toggleSidebar() {
   margin-left: auto;
 }
 
-.generateReport:hover {
+.generateForm:hover {
   background-color: #fdd116;
   color: #0038A7;
   transition: 0.5s ease;
@@ -135,7 +148,7 @@ function toggleSidebar() {
     flex-direction: column;
   }
 
-  .generateReport {
+  .generateForm {
     margin-left: 0;
     margin-top: 10px;
   }
