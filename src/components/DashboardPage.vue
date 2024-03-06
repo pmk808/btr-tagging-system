@@ -45,9 +45,11 @@ import FooterComponent from '../components/dashboardcomp/FooterComponent.vue';
 import TableBodyContents from '../components/TableBodyContents.vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import '@fortawesome/fontawesome-free/js/all.js';
+// import { supabase } from '../supabaseconfig.js';
 
 const sidebarVisible = ref(true);
 const isLoggedIn = ref(true);
+
 
 function toggleSidebar() {
   sidebarVisible.value = !sidebarVisible.value;
