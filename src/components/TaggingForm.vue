@@ -45,7 +45,7 @@
             </div>
             <!-- Date -->
             <div class="form-group">
-              <label for="date">Date</label>
+              <label for="date">Forward Date</label>
               <input type="date" id="date" v-model="date" required>
             </div>
              <!-- Office: -->
@@ -91,6 +91,7 @@
 
 <script setup>
 import { ref, defineEmits } from 'vue';
+import { supabase } from '../supabaseconfig.js'
 
 const documentType = ref('');
 const documentTitle = ref('');
@@ -111,9 +112,49 @@ const closeModal = () => {
   emit('close-modal');
 };
 
-const submitForm = () => {
-  // You can perform form validation here before submitting
+const generateDocumentCode = () => {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const numbers = '0123456789';
+  let result = '';
+  for (let i = 0; i < 3; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  for (let i = 0; i < 3; i++) {
+    result += numbers.charAt(Math.floor(Math.random() * numbers.length));
+  }
+  return result;
+};
+
+const submitForm = async () => {
+  const documentCode = generateDocumentCode();
+
+const currentDate = new Date().toISOString().split('T')[0];
+  
   if (documentType.value && documentTitle.value && actionsNeeded.value && receivedBy.value && agencySource.value && forward.value && date.value && department.value && in_out.value && status.value) {
+    try {
+      const { error } = await supabase
+        .from('taggingForm')
+        .insert([
+          {
+            document_code: documentCode,
+            document_type: documentType.value,
+            document_title: documentTitle.value,
+            actions: actionsNeeded.value,
+            received_from: receivedBy.value,
+            rcv_date: currentDate,
+            agency: agencySource.value,
+            fwd_to: forward.value,
+            fwd_date: date.value,
+            office: department.value,
+            in_out: in_out.value,
+            status: status.value,
+          },
+        ]);
+      
+      if (error) {
+        throw error;
+      }
+
     // Emit an event to inform the parent component that the form is submitted
     emit('update-form', {
       documentType: documentType.value,
@@ -129,6 +170,9 @@ const submitForm = () => {
     });
     // Close the modal after form submission
     closeModal();
+  } catch (error) {
+      console.error('Error inserting form data into Supabase:', error.message);
+    }
   } else {
     // Handle form validation errors or display an error message
     console.error('Please fill in all fields');
