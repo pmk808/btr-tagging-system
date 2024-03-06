@@ -55,7 +55,7 @@ const logout = () => {
   top: 0;
   left: 0;
   bottom: 0;
-  z-index: 2;
+  z-index: 4;
   color: #fff;
   background-color: #0038A7;
   padding: 20px;
