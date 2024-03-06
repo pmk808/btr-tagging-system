@@ -15,9 +15,9 @@
       <!-- Login Form -->
       <div class="login-form">
         <h2>LOGIN INTO YOUR ACCOUNT</h2>
-        <form @submit.prevent="login">
-          <input type="text" v-model="email" placeholder="Email" required autocomplete="off">
-          <input type="password" v-model="password" placeholder="Password" required autocomplete="off">
+        <form @submit.prevent="login" :class="{ 'error': loginError }">
+          <input type="text" v-model="email" placeholder="Email" required autocomplete="off" :class="{ 'error': loginError }">
+          <input type="password" v-model="password" placeholder="Password" required autocomplete="off" :class="{ 'error': loginError }">
           <button :disabled="loading" type="submit">
             <span v-if="loading">Logging In...</span>
             <span v-else>LOGIN</span>
@@ -224,5 +224,15 @@ html {
     height: 50%;
     border-radius: 0;
   }
+}
+
+.error-message {
+  color: red;
+}
+
+.login-form input[type="text"].error,
+.login-form input[type="password"].error {
+  border: 1px solid red;
+  box-shadow: 0 0 5px red;
 }
 </style>
