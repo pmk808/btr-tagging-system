@@ -38,10 +38,44 @@
               <label for="receivedBy">Received By / From</label>
               <input type="text" id="receivedBy" v-model="receivedBy" required>
             </div>
+            <!-- Forwarded To: -->
+            <div class="form-group">
+              <label for="forward">Forwarded To:</label>
+              <input type="text" id="forward" v-model="forward" required>
+            </div>
             <!-- Date -->
             <div class="form-group">
               <label for="date">Date</label>
               <input type="date" id="date" v-model="date" required>
+            </div>
+             <!-- Office: -->
+             <div class="form-group">
+              <label for="department">Office:</label>
+              <select v-model="department">
+                <option disabled value="">Select Department</option>
+                <option value="accounting">Accounting Office</option>
+                <option value="provincial">Provincial Office</option>
+                <option value="regional">Regional Office</option>
+                <option value="rdoffice">RD Office</option>
+              </select>
+            </div>
+            <!-- In or Out: -->
+            <div class="form-group">
+              <label for="in_out">In or Out:</label>
+              <select v-model="in_out">
+                <option disabled value="">Select</option>
+                <option value="incoming">Incoming</option>
+                <option value="outgoing">Outgoing</option>
+              </select>
+            </div>
+            <!-- In or Out: -->
+            <div class="form-group">
+              <label for="status">Status</label>
+              <select v-model="status">
+                <option disabled value="">Select</option>
+                <option value="pending">Pending</option>
+                <option value="received">Received</option>
+              </select>
             </div>
             <!-- Submit and Cancel Buttons -->
             <div class="buttons">
@@ -63,7 +97,11 @@ const documentTitle = ref('');
 const actionsNeeded = ref('');
 const receivedBy = ref('');
 const agencySource = ref('');
+const forward = ref('');
 const date = ref('');
+const department = ref('');
+const in_out = ref('');
+const status = ref('');
 
 const emit = defineEmits(['close-modal', 'update-form']); 
 
@@ -75,7 +113,7 @@ const closeModal = () => {
 
 const submitForm = () => {
   // You can perform form validation here before submitting
-  if (documentType.value && documentTitle.value && actionsNeeded.value && receivedBy.value && agencySource.value && date.value) {
+  if (documentType.value && documentTitle.value && actionsNeeded.value && receivedBy.value && agencySource.value && forward.value && date.value && department.value && in_out.value && status.value) {
     // Emit an event to inform the parent component that the form is submitted
     emit('update-form', {
       documentType: documentType.value,
@@ -83,7 +121,11 @@ const submitForm = () => {
       actionsNeeded: actionsNeeded.value,
       receivedBy: receivedBy.value,
       agencySource: agencySource.value,
-      date: date.value
+      forward: forward.value,
+      date: date.value,
+      department: department.value,
+      in_out: in_out.value,
+      status: status.value
     });
     // Close the modal after form submission
     closeModal();
@@ -115,7 +157,9 @@ const submitForm = () => {
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-  width: 90%; /* Expand the width */
+  width: 70%; /* Expand the width */
+  max-height: 80vh; /* Set a maximum width */
+  overflow-y: auto; /* Hide the overflow content */
 }
 
 /* Modal Content */
@@ -133,24 +177,26 @@ const submitForm = () => {
   margin-bottom: 10px; /* Add some margin at the bottom */
 }
 
-/* Close Button */
-.close-button {
-  background: #0038A7;
-  border: none;
-  cursor: pointer;
-  color: white; /* Add color to close button text */
-  font-weight: bold; /* Make close button text bold */
-  padding: 5px 10px; /* Add padding to close button */
-  border-radius: 5px; /* Add border-radius to close button */
+/* Header Info */
+.header-info {
+  display: flex;
+  align-items: center;
 }
 
-.close-button:hover {
-  background: #001F5E; /* Change background color on hover */
+/* Document Code */
+.document-code {
+  font-size: 14px;
+  margin-right: 10px;
+}
+
+/* Current Date */
+.current-date {
+  font-size: 14px;
 }
 
 /* Modal Body */
 .modal-body {
-  /* Additional styling for modal body */
+  height: 650px; /* Adjust the height */
 }
 
 /* Form Group */
@@ -160,8 +206,9 @@ const submitForm = () => {
 
 /* Form Inputs */
 input[type="text"],
-input[type="date"] {
-  width: 100%;
+input[type="date"],
+select {
+  width: calc(100% - 2px); /* Adjust the width to accommodate the border */
   padding: 0.5rem;
   border: 1px solid #ccc;
   border-radius: 4px;
@@ -183,20 +230,9 @@ button[type="reset"]:hover {
   background-color: #001F5E;
 }
 
-/* Header Info */
-.header-info {
-  display: flex;
-  align-items: center;
-}
-
-/* Document Code */
-.document-code {
-  font-size: 14px;
-  margin-right: 10px;
-}
-
-/* Current Date */
-.current-date {
-  font-size: 14px;
+/* Buttons Container */
+.buttons {
+  margin-top: 1rem;
+  text-align: right;
 }
 </style>
