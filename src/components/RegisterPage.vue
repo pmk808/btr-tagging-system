@@ -17,9 +17,9 @@
         <h2>REGISTER AN ACCOUNT</h2>
         <form @submit.prevent="register">
 
-          <input type="text" v-model="username" placeholder="Username" required>
-          <input type="password" v-model="registerPassword" placeholder="Password" required>
           <input type="email" v-model="email" placeholder="Email" required>
+          <input type="password" v-model="registerPassword" placeholder="Password" required>
+          <input type="text" v-model="name" placeholder="Name" required>
           <select v-model="department">
             <option disabled value="">Select Department</option>
             <option value="desk">Front Desk</option>
@@ -58,6 +58,11 @@ const department = ref('');
 
 const register = async () => {
   try {
+
+    if (!department.value) {
+      registrationError.value = "Please select a department";
+      return;
+    }
 
     const { error } = await supabase.auth.signUp({  
       email: email.value,
@@ -111,11 +116,11 @@ html {
 
 .register-content {
   position: absolute;
-  top: 10%;
+  top: 5%;
   left: 0;
   justify-content: center;
   width: 50%;
-  height: 70%;
+  height: 75%;
   display: flex;
   flex: 1;
 }
@@ -218,5 +223,16 @@ html {
 .fade-enter,
 .fade-leave-to {
   transform: translateX(-100%);
+}
+
+.error-message {
+  color: red;
+}
+
+.register-form input[type="text"].error,
+.register-form input[type="email"].error,
+.register-form input[type="password"].error {
+  border: 1px solid red;
+  box-shadow: 0 0 5px red;
 }
 </style>

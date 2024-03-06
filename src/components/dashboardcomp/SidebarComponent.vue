@@ -4,6 +4,7 @@
     <span class="toggle-btn" @click="toggleSidebar">
       <font-awesome-icon :icon="sidebarVisible ? ['fas', 'bars'] : ['fas', 'angles-right']" />
     </span>
+    <h3>Welcome</h3>
     <ul>
       <li :class="{ 'active': $route.path === '/dashboard' }"><router-link to="/dashboard">
           <span class="icons">
