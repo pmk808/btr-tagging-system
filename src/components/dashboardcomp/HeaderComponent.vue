@@ -22,13 +22,13 @@
   }
   
   .header h1 {
-    font-size: 30px;
+    font-size: 20px;
     font-weight: 700;
   }
 
   .header h5 {
   margin-top: 10px; /* Add margin to create space between h1 and h5 */
-  font-size: 18px; /* Reduced font size for h5 */
+  font-size: 12px; /* Reduced font size for h5 */
 } 
   </style>
   
