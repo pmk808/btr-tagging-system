@@ -86,23 +86,46 @@ const date = ref('');
 const department = ref('');
 const in_out = ref('');
 const status = ref('Pending');
+const documentCode = ref(''); 
 
 const currentDate = new Date().toLocaleDateString();
 
-const generateDocumentCode = () => {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const numbers = '0123456789';
-  let result = '';
-  for (let i = 0; i < 3; i++) {
-    result += characters.charAt(Math.floor(Math.random() * characters.length));
+const fetchLatestDocumentCode = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('taggingForm')
+      .select('document_code')
+      .order('document_code', { ascending: false })
+      .limit(1);
+
+    if (error) throw error;
+
+    documentCode.value = data.length > 0 ? data[0].document_code : '';
+
+  } catch(error) {
+    console.error('Error fetching latest document code:', error);
+    // Handle error gracefully 
   }
-  for (let i = 0; i < 3; i++) {
-    result += numbers.charAt(Math.floor(Math.random() * numbers.length));
-  }
-  return result;
 };
 
+const generateDocumentCode = () => {
+  const defaultPrefix = 'BTrXI-';
+  const currentDate = new Date();
+  const year = currentDate.getFullYear().toString().slice(-4);
+  const month = ('0' + (currentDate.getMonth() + 1)).slice(-2);
+
+  // Extract the current transaction number (assuming the last 3 digits)
+  const currentTransactionNumber = documentCode.value.slice(-3); 
+
+  // Convert to number, increment, and pad with leading zeros if needed
+  let incrementedTransactionNumber = (parseInt(currentTransactionNumber) + 1).toString().padStart(3, '0');
+
+  return defaultPrefix + 'R' + year + '-' + month + '-' + incrementedTransactionNumber;
+};
+
+
 const submitForm = async () => {
+  await fetchLatestDocumentCode(); 
   const documentCode = generateDocumentCode();
 
 const currentDate = new Date().toISOString().split('T')[0];
