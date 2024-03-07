@@ -5,34 +5,11 @@
       <SidebarComponent :sidebar-visible="sidebarVisible" @toggle-sidebar="toggleSidebar" />
       <div class="main-content">
         <div class="tagging-content" v-if="isLoggedIn">
-          <table class="document-table">
-            <thead>
-              <tr>
-                <th colspan="15">
-                  <button class="generateForm" @click="showAddNewFormModal">Add New Form&nbsp;
-                    <font-awesome-icon :icon="['fas', 'file']" /></button>
-                </th>
-              </tr>
-              <tr>
-                <th>Document Code</th>
-                <th>Document Type</th>
-                <th>Document Title</th>
-                <th>Action Needed</th>
-                <th>Agency/Source</th>
-                <th>Received By/from</th>
-                <th>Date Received</th>
-                <th>Forwarded To:</th>
-                <th>Date</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <TableBodyContents />
-          </table>
         </div>
+        <TaggingForm />
       </div>
       <FooterComponent />
     </div>
-    <TaggingForm v-if="showModal" @close-modal="closeAddNewFormModal" />
   </div>
 </template>
 
@@ -41,27 +18,17 @@ import { ref } from 'vue';
 import HeaderComponent from '../components/dashboardcomp/HeaderComponent.vue';
 import SidebarComponent from '../components/dashboardcomp/SidebarComponent.vue';
 import FooterComponent from '../components/dashboardcomp/FooterComponent.vue';
-import TableBodyContents from '../components/TableBodyContents.vue';
-import TaggingForm from '../components/TaggingForm.vue'; // Import the modal component
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import TaggingForm from '../components/TaggingForm.vue'; 
 import '@fortawesome/fontawesome-free/js/all.js';
 
 const sidebarVisible = ref(true);
 const isLoggedIn = ref(true);
-const showModal = ref(false);
 
 function toggleSidebar() {
   sidebarVisible.value = !sidebarVisible.value;
 }
 
-function showAddNewFormModal() {
-  showModal.value = true;
-}
-
-function closeAddNewFormModal() {
-  showModal.value = false;
-}
-</script> 
+</script>  
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap');
