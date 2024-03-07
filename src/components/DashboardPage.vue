@@ -1,7 +1,7 @@
 <template>
   <div class="dashboard-container">
     <div class="HeaderComponent">
-    <HeaderComponent />
+      <HeaderComponent />
     </div>
     <div class="main-wrapper" :class="{ 'sidebar-collapsed': !sidebarVisible }">
       <SidebarComponent :sidebar-visible="sidebarVisible" @toggle-sidebar="toggleSidebar" />
@@ -28,7 +28,20 @@
                 <th>Status</th>
               </tr>
             </thead>
-            <TableBodyContents />
+            <tbody>
+              <tr v-for="document in documentList" :key="document.code">
+                <td>{{ document.document_code }}</td>
+                <td>{{ document.document_type }}</td>
+                <td>{{ document.document_title }}</td>
+                <td>{{ document.actions }}</td>
+                <td>{{ document.agency }}</td>
+                <td>{{ document.received_from }}</td>
+                <td>{{ document.rcv_date }}</td>
+                <td>{{ document.fwd_to }}</td>
+                <td>{{ document.fwd_date }}</td>
+                <td>{{ document.status }}</td>
+              </tr>
+            </tbody>
           </table>
         </div>
       </div>
@@ -38,22 +51,32 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import HeaderComponent from '../components/dashboardcomp/HeaderComponent.vue';
 import SidebarComponent from '../components/dashboardcomp/SidebarComponent.vue';
 import FooterComponent from '../components/dashboardcomp/FooterComponent.vue';
-import TableBodyContents from '../components/TableBodyContents.vue';
-import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
-import '@fortawesome/fontawesome-free/js/all.js';
-// import { supabase } from '../supabaseconfig.js';
+import { supabase } from '../supabaseconfig.js';
 
 const sidebarVisible = ref(true);
 const isLoggedIn = ref(true);
-
+const documentList = ref([]);
 
 function toggleSidebar() {
   sidebarVisible.value = !sidebarVisible.value;
 }
+
+async function fetchDocuments() {
+  const { data, error } = await supabase.from('taggingForm').select('*');
+  if (error) {
+    console.error('Error fetching documents:', error.message);
+  } else {
+    documentList.value = data;
+  }
+}
+
+onMounted(() => {
+  fetchDocuments();
+});
 </script>
 
 <style scoped>

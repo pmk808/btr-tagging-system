@@ -16,130 +16,24 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { supabase } from '../supabaseconfig.js';
 
-const documentList = ref([
-  {
-    code: 'BTrXI-R2024-03-001',
-    type: 'Policy',
-    title: 'Policy Document',
-    action: 'Review',
-    agency: 'HR Department',
-    receivedFrom: 'John Doe',
-    dateReceived: '2024-03-15',
-    forwardedTo: 'Manager',
-    date: '2024-03-16',
-    status: 'Pending'
-  },
-  {
-    code: 'BTrXI-R2024-03-002',
-    type: 'Invoice',
-    title: 'Invoice Document',
-    action: 'Approve',
-    agency: 'Finance Department',
-    receivedFrom: 'Jane Doe',
-    dateReceived: '2024-03-15',
-    forwardedTo: 'Accountant',
-    date: '2024-03-16',
-    status: 'Approved'
-  },
-  {
-    code: 'BTrXI-R2024-03-003',
-    type: 'Report',
-    title: 'Report Document',
-    action: 'Review',
-    agency: 'Marketing Department',
-    receivedFrom: 'John Smith',
-    dateReceived: '2024-03-15',
-    forwardedTo: 'Manager',
-    date: '2024-03-16',
-    status: 'Pending'
-  },
-  {
-    code: 'BTrXI-R2024-03-004',
-    type: 'Memo',
-    title: 'Memo Document',
-    action: 'Approve',
-    agency: 'HR Department',
-    receivedFrom: 'Jane Smith',
-    dateReceived: '2024-03-15',
-    forwardedTo: 'Manager',
-    date: '2024-03-16',
-    status: 'Approved'
-  },
-  {
-    code: 'BTrXI-R2024-03-005',
-    type: 'Policy',
-    title: 'Policy Document',
-    action: 'Review',
-    agency: 'HR Department',
-    receivedFrom: 'John Doe',
-    dateReceived: '2024-03-15',
-    forwardedTo: 'Manager',
-    date: '2024-03-16',
-    status: 'Pending'
-  },
-  {
-    code: 'BTrXI-R2024-03-006',
-    type: 'Invoice',
-    title: 'Invoice Document',
-    action: 'Review',
-    agency: 'Finance Department',
-    receivedFrom: 'Jane Doe',
-    dateReceived: '2024-03-15',
-    forwardedTo: 'Accountant',
-    date: '2024-03-16',
-    status: 'Pending'
-  },
-  {
-    code: 'BTrXI-R2024-03-007',
-    type: 'Invoice',
-    title: 'Invoice Document',
-    action: 'Review',
-    agency: 'Finance Department',
-    receivedFrom: 'Jane Doe',
-    dateReceived: '2024-03-15',
-    forwardedTo: 'Accountant',
-    date: '2024-03-16',
-    status: 'Pending'
-  },
-  {
-    code: 'BTrXI-R2024-03-008',
-    type: 'Invoice',
-    title: 'Invoice Document',
-    action: 'Review',
-    agency: 'Finance Department',
-    receivedFrom: 'Jane Doe',
-    dateReceived: '2024-03-15',
-    forwardedTo: 'Accountant',
-    date: '2024-03-16',
-    status: 'Pending'
-  },
-  {
-    code: 'BTrXI-R2024-03-009',
-    type: 'Invoice',
-    title: 'Invoice Document',
-    action: 'Review',
-    agency: 'Finance Department',
-    receivedFrom: 'Jane Doe',
-    dateReceived: '2024-03-15',
-    forwardedTo: 'Accountant',
-    date: '2024-03-16',
-    status: 'Pending'
-  },
-  {
-    code: 'BTrXI-R2024-03-010',
-    type: 'Invoice',
-    title: 'Invoice Document',
-    action: 'Review',
-    agency: 'Finance Department',
-    receivedFrom: 'Jane Doe',
-    dateReceived: '2024-03-15',
-    forwardedTo: 'Accountant',
-    date: '2024-03-16',
-    status: 'Pending'
+
+const documentList = ref([]);
+
+async function fetchDocuments() {
+  const { data, error } = await supabase.from('taggingForm').select('*');
+  if (error) {
+    console.error('Error fetching documents:', error.message);
+  } else {
+    documentList.value = data;
   }
-]);
+}
+
+onMounted(() => {
+  fetchDocuments();
+});
 </script>
 
 <style scoped>

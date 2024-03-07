@@ -1,96 +1,78 @@
 <template>
-  <div class="modal-overlay">
-    <div class="modal-dialog">
-      <div class="modal-content tagging-form-modal">
-        <div class="modal-header">
-          <h3>Document Tagging Form</h3>
-          <div class="header-info">
-            <p class="document-code">Document Code: ABC123</p>
-            <p class="current-date">{{ currentDate }}</p>
-          </div>
+  <div class="tagging-form">
+    <h3>Document Tagging Form</h3>
+    <div class="header-info">
+      <p class="document-code">Document Code: ABC123</p>
+      <p class="current-date">{{ currentDate }}</p>
+    </div>
+    <form @submit.prevent="submitForm">
+      <!-- Document Type and Document Title -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="documentType">Document Type</label>
+          <input type="text" id="documentType" v-model="documentType" required>
         </div>
-        <div class="modal-body">
-          <form @submit.prevent="submitForm">
-            <!-- Document Type and Document Title -->
-            <div class="form-row">
-              <div class="form-group">
-                <label for="documentType">Document Type</label>
-                <input type="text" id="documentType" v-model="documentType" required>
-              </div>
-              <div class="form-group">
-                <label for="documentTitle">Document Title</label>
-                <input type="text" id="documentTitle" v-model="documentTitle" required>
-              </div>
-            </div>
-            <!-- Action Needed and Agency/Source -->
-            <div class="form-row">
-              <div class="form-group">
-                <label for="actionsNeeded">Action(s) Needed</label>
-                <input type="text" id="actionsNeeded" v-model="actionsNeeded" required>
-              </div>
-              <div class="form-group">
-                <label for="agencySource">Agency/Source</label>
-                <input type="text" id="agencySource" v-model="agencySource" required>
-              </div>
-            </div>
-            <!-- Received By/From -->
-            <div class="form-group">
-              <label for="receivedBy">Received By / From</label>
-              <input type="text" id="receivedBy" v-model="receivedBy" required>
-            </div>
-            <!-- Forwarded To: -->
-            <div class="form-group">
-              <label for="forward">Forwarded To:</label>
-              <input type="text" id="forward" v-model="forward" required>
-            </div>
-            <!-- Date -->
-            <div class="form-group">
-              <label for="date">Date</label>
-              <input type="date" id="date" v-model="date" required>
-            </div>
-             <!-- Office: -->
-             <div class="form-group">
-              <label for="department">Office:</label>
-              <select v-model="department">
-                <option disabled value="">Select Department</option>
-                <option value="accounting">Accounting Office</option>
-                <option value="provincial">Provincial Office</option>
-                <option value="regional">Regional Office</option>
-                <option value="rdoffice">RD Office</option>
-              </select>
-            </div>
-            <!-- In or Out: -->
-            <div class="form-group">
-              <label for="in_out">In or Out:</label>
-              <select v-model="in_out">
-                <option disabled value="">Select</option>
-                <option value="incoming">Incoming</option>
-                <option value="outgoing">Outgoing</option>
-              </select>
-            </div>
-            <!-- In or Out: -->
-            <div class="form-group">
-              <label for="status">Status</label>
-              <select v-model="status">
-                <option disabled value="">Select</option>
-                <option value="pending">Pending</option>
-                <option value="received">Received</option>
-              </select>
-            </div>
-            <!-- Submit and Cancel Buttons -->
-            <div class="buttons">
-              <button type="submit">Submit</button>&nbsp;
-              <button type="reset" @click="closeModal">Cancel</button>
-            </div>
-          </form>
         </div>
       </div>
-    </div>
+      <!-- Action Needed and Agency/Source -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="actionsNeeded">Action(s) Needed</label>
+          <input type="text" id="actionsNeeded" v-model="actionsNeeded" required>
+        </div>
+        <div class="form-group">
+          <label for="agencySource">Agency/Source</label>
+          <input type="text" id="agencySource" v-model="agencySource" required>
+        </div>
+      </div>
+      <!-- Received By/From -->
+      <div class="form-group">
+        <label for="receivedBy">Received By / From</label>
+        <input type="text" id="receivedBy" v-model="receivedBy" required>
+      </div>
+      <!-- Forwarded To: -->
+      <div class="form-group">
+        <label for="forward">Forwarded To:</label>
+        <input type="text" id="forward" v-model="forward" required>
+      </div>
+      <!-- Date -->
+      <div class="form-group">
+        <label for="date">Forward Date</label>
+        <input type="date" id="date" v-model="date" required>
+      </div>
+      <!-- Office: -->
+      <div class="form-group">
+        <label for="department">Office:</label>
+        <select v-model="department">
+          <option disabled value="">Select Department</option>
+          <option value="Accounting">Accounting Office</option>
+          <option value="Provincial">Provincial Office</option>
+          <option value="Regional">Regional Office</option>
+          <option value="RDoffice">RD Office</option>
+        </select>
+      </div>
+      <!-- In or Out: -->
+      <div class="form-group">
+        <label for="in_out">In or Out:</label>
+        <select v-model="in_out">
+          <option disabled value="">Select</option>
+          <option value="Incoming">Incoming</option>
+          <option value="Outgoing">Outgoing</option>
+        </select>
+      </div>
+      <!-- Submit Button -->
+      <div class="buttons">
+        <button type="submit">Submit</button>&nbsp;
+        <button type="reset" @click="resetForm">Clear</button>
+      </div>
+    </form>
   </div>
 </template>
 
 <script setup>
-import { ref, defineEmits } from 'vue';
+import { ref } from 'vue';
+import { supabase } from '../supabaseconfig.js';
+
 
 const documentType = ref('');
 const documentTitle = ref('');
@@ -101,38 +83,79 @@ const forward = ref('');
 const date = ref('');
 const department = ref('');
 const in_out = ref('');
-const status = ref('');
-
-const emit = defineEmits(['close-modal', 'update-form']); 
+const status = ref('Pending');
 
 const currentDate = new Date().toLocaleDateString();
 
+const generateDocumentCode = () => {
+  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
+  const numbers = '0123456789';
+  let result = '';
+  for (let i = 0; i < 3; i++) {
+    result += characters.charAt(Math.floor(Math.random() * characters.length));
+  }
+  for (let i = 0; i < 3; i++) {
+    result += numbers.charAt(Math.floor(Math.random() * numbers.length));
+  }
+  return result;
+};
+
+const submitForm = async () => {
+  const documentCode = generateDocumentCode();
+
+const currentDate = new Date().toISOString().split('T')[0];
+  
+  if (documentType.value && documentTitle.value && actionsNeeded.value && receivedBy.value && agencySource.value && forward.value && date.value && department.value && in_out.value && status.value) {
+    try {
+      const { error } = await supabase
+        .from('taggingForm')
+        .insert([
+          {
+            document_code: documentCode,
+            document_type: documentType.value,
+            document_title: documentTitle.value,
+            actions: actionsNeeded.value,
+            received_from: receivedBy.value,
+            rcv_date: currentDate,
+            agency: agencySource.value,
+            fwd_to: forward.value,
+            fwd_date: date.value,
+            office: department.value,
+            in_out: in_out.value,
+            status: status.value,
+          },
+        ]);
+      
+      if (error) {
+        throw error;
+      }
+
+      resetForm();
+    
+  } catch (error) {
+      console.error('Error inserting form data into Supabase:', error.message);
+    }
+=======
 const closeModal = () => { 
   emit('close-modal');
 };
-
-const submitForm = () => {
-  // You can perform form validation here before submitting
-  if (documentType.value && documentTitle.value && actionsNeeded.value && receivedBy.value && agencySource.value && forward.value && date.value && department.value && in_out.value && status.value) {
-    // Emit an event to inform the parent component that the form is submitted
-    emit('update-form', {
-      documentType: documentType.value,
-      documentTitle: documentTitle.value,
-      actionsNeeded: actionsNeeded.value,
-      receivedBy: receivedBy.value,
-      agencySource: agencySource.value,
-      forward: forward.value,
-      date: date.value,
-      department: department.value,
-      in_out: in_out.value,
-      status: status.value
-    });
-    // Close the modal after form submission
-    closeModal();
   } else {
     // Handle form validation errors or display an error message
     console.error('Please fill in all fields');
   }
+};
+
+const resetForm = () => {
+  documentType.value = '';
+  documentTitle.value = '';
+  actionsNeeded.value = '';
+  receivedBy.value = '';
+  agencySource.value = '';
+  forward.value = '';
+  date.value = '';
+  department.value = '';
+  in_out.value = '';
+  status.value = '';
 };
 </script>
 
