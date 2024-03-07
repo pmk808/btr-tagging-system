@@ -12,9 +12,6 @@
           <label for="documentType">Document Type</label>
           <input type="text" id="documentType" v-model="documentType" required>
         </div>
-        <div class="form-group">
-          <label for="documentTitle">Document Title</label>
-          <input type="text" id="documentTitle" v-model="documentTitle" required>
         </div>
       </div>
       <!-- Action Needed and Agency/Source -->
@@ -75,6 +72,7 @@
 <script setup>
 import { ref } from 'vue';
 import { supabase } from '../supabaseconfig.js';
+
 
 const documentType = ref('');
 const documentTitle = ref('');
@@ -137,6 +135,10 @@ const currentDate = new Date().toISOString().split('T')[0];
   } catch (error) {
       console.error('Error inserting form data into Supabase:', error.message);
     }
+=======
+const closeModal = () => { 
+  emit('close-modal');
+};
   } else {
     // Handle form validation errors or display an error message
     console.error('Please fill in all fields');
