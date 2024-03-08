@@ -49,7 +49,7 @@ const logout = () => {
 <style scoped>
 /* Sidebar Styles */
 .sidebar {
-  width: 200px;
+  width: 180px;
   height: 100%;
   float: left;
   position: fixed;
@@ -102,7 +102,7 @@ const logout = () => {
   margin-bottom: 40px;
   display: block;
   padding: 10px;
-  font-size: 20px;
+  font-size: 15px;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
