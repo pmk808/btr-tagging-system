@@ -30,6 +30,7 @@
           <input type="text" id="agencySource" v-model="agencySource" required>
         </div>
       </div>
+
       <!-- Received By/From and Forward To -->
       <div class="form-row">
         <div class="form-group">
@@ -40,6 +41,7 @@
           <label for="forward">Forwarded To: &nbsp;</label>
           <input type="text" id="forward" v-model="forward" required>
         </div>
+
       </div>
       <!-- Office: and In or Out: -->
       <div class="form-row">
@@ -83,32 +85,62 @@ const actionsNeeded = ref('');
 const receivedBy = ref('');
 const agencySource = ref('');
 const forward = ref('');
-const date = ref('');
 const department = ref('');
 const in_out = ref('');
 const status = ref('Pending');
+const documentCode = ref(''); 
 
 const currentDate = new Date().toLocaleDateString();
 
-const generateDocumentCode = () => {
-  const characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ';
-  const numbers = '0123456789';
-  let result = '';
-  for (let i = 0; i < 3; i++) {
-    result += characters.charAt(Math.floor(Math.random() * characters.length));
-  }
-  for (let i = 0; i < 3; i++) {
-    result += numbers.charAt(Math.floor(Math.random() * numbers.length));
-  }
-  return result;
+const fetchLatestDocumentCode = async () => {
+    try {
+        const { data, error } = await supabase
+            .from('taggingForm')
+            .select('document_code')
+            .eq('in_out', in_out.value) // Filter by the current transaction type
+            .order('document_code', { ascending: false })
+            .limit(1);
+
+        if (error) throw error;
+
+        documentCode.value = data.length > 0 ? data[0].document_code : '';
+
+    } catch (error) {
+        console.error('Error fetching latest document code:', error);
+        // Handle error gracefully
+    }
 };
 
+const generateDocumentCode = () => {
+  const defaultPrefix = 'BTrXI-';
+  const currentDate = new Date();
+  const year = currentDate.getFullYear().toString().slice(-4);
+  const month = ('0' + (currentDate.getMonth() + 1)).slice(-2);
+
+  // Extract transaction number with padding intact
+  let transactionNumber = 0; 
+  if (documentCode.value) {
+    transactionNumber = parseInt(documentCode.value.slice(-3), 10); 
+  }
+
+  // Increment and ensure padding
+  transactionNumber++; 
+  const paddedTransactionNumber = transactionNumber.toString().padStart(3, '0');
+
+  return defaultPrefix + 'R' + year + '-' + month + '-' + paddedTransactionNumber;
+};
+
+
 const submitForm = async () => {
+  
+  await fetchLatestDocumentCode(); 
   const documentCode = generateDocumentCode();
+  const currentDate = new Date().toLocaleDateString();
 
   const currentDate = new Date().toISOString().split('T')[0];
 
   if (documentType.value && documentTitle.value && actionsNeeded.value && receivedBy.value && agencySource.value && forward.value && date.value && department.value && in_out.value && status.value) {
+
     try {
       const { error } = await supabase
         .from('taggingForm')
@@ -136,25 +168,26 @@ const submitForm = async () => {
       resetForm();
 
     } catch (error) {
+
       console.error('Error inserting form data into Supabase:', error.message);
+      console.log('Failed to submit the form');
     }
   } else {
-    // Handle form validation errors or display an error message
     console.error('Please fill in all fields');
   }
 };
 
 const resetForm = () => {
+  documentCode.value = '';
   documentType.value = '';
   documentTitle.value = '';
   actionsNeeded.value = '';
   receivedBy.value = '';
   agencySource.value = '';
   forward.value = '';
-  date.value = '';
   department.value = '';
   in_out.value = '';
-  status.value = '';
+  status.value = 'Pending';
 };
 </script>
 

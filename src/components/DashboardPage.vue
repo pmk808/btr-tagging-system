@@ -3,18 +3,21 @@
     <div class="HeaderComponent">
       <HeaderComponent />
     </div>
+    
     <div class="main-wrapper" :class="{ 'sidebar-collapsed': !sidebarVisible }">
+      
       <SidebarComponent :sidebar-visible="sidebarVisible" @toggle-sidebar="toggleSidebar" />
+      
       <div class="main-content">
         <div class="dashboard-content" v-if="isLoggedIn">
+      </div>
+      <div class="generate-report-button">
+          <button class="generateReport" @click="generateReport">Generate Report&nbsp;
+            <font-awesome-icon :icon="['fas', 'download']" />
+          </button>
           <table class="document-table">
+            
             <thead>
-              <tr>
-                <th colspan="15">
-                  <button class="generateReport" @click="generateReport">Generate Report&nbsp;
-                    <font-awesome-icon :icon="['fas', 'download']" /></button>
-                </th>
-              </tr>
               <tr>
                 <th>Document Code</th>
                 <th>Document Type</th>
@@ -28,7 +31,7 @@
                 <th>Status</th>
               </tr>
             </thead>
-            <tbody>
+            <tbody v-if="!loading">
               <tr v-for="document in documentList" :key="document.code">
                 <td>{{ document.document_code }}</td>
                 <td>{{ document.document_type }}</td>
@@ -39,11 +42,23 @@
                 <td>{{ document.rcv_date }}</td>
                 <td>{{ document.fwd_to }}</td>
                 <td>{{ document.fwd_date }}</td>
-                <td>{{ document.status }}</td>
+                <td>
+      <div :class="getStatusClass(document.status)">
+        {{ document.status }}
+      </div>
+    </td>
               </tr>
             </tbody>
+            <tbody v-if="loading">
+            <tr>
+              <td colspan="10" class="loading-indicator-cell">
+                <div class="loading-indicator"></div>
+              </td>
+            </tr>
+          </tbody>
           </table>
         </div>
+       
       </div>
       <FooterComponent />
     </div>
@@ -61,27 +76,72 @@ import { supabase } from '../supabaseconfig.js';
 const sidebarVisible = ref(true);
 const isLoggedIn = ref(true);
 const documentList = ref([]);
+const loading = ref(false);
 
 function toggleSidebar() {
   sidebarVisible.value = !sidebarVisible.value;
 }
 
 async function fetchDocuments() {
-  const { data, error } = await supabase.from('taggingForm').select('*');
-  if (error) {
+  loading.value = true; // Set loading to true before fetching documents
+  try {
+    const { data, error } = await supabase.from('taggingForm').select('*');
+    if (error) {
+      console.error('Error fetching documents:', error.message);
+    } else {
+      documentList.value = data;
+    }
+  } catch (error) {
     console.error('Error fetching documents:', error.message);
-  } else {
-    documentList.value = data;
+  } finally {
+    loading.value = false; // Set loading to false after fetching documents
   }
 }
 
 onMounted(() => {
   fetchDocuments();
 });
+
+function getStatusClass(status) {
+  return {
+    'status-capsule': true,
+    'green': status === 'Received',
+    'yellow': status === 'Pending'
+  };
+}
 </script>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap');
+
+.button-container {
+  display: flex;
+  justify-content: flex-end !important; 
+  margin-bottom: 10px; 
+} 
+
+.generate-report-cell {
+  text-align: left;
+}
+
+.loading-indicator-cell {
+  text-align: center;
+}
+
+.loading-indicator {
+  border: 4px solid #0038A7; /* Blue border */
+  border-top: 4px solid #FFD700; /* Yellow border on top */
+  border-radius: 50%;
+  width: 30px;
+  height: 30px;
+  animation: spin 1s linear infinite; /* Animation for spinning */
+}
+
+/* Animation for spinning */
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
 
 /* Dashboard Container */
 .dashboard-container {
@@ -126,9 +186,11 @@ onMounted(() => {
   grid-gap: 20px;
 }
 
+
 .main-wrapper.sidebar-collapsed {
   margin-left: 0;
   width: 100%;
+
 }
 
 .generateReport {
@@ -137,7 +199,6 @@ onMounted(() => {
   color: #fff;
   border-radius: 5px;
   padding: 5px;
-  margin-left: auto;
 }
 
 .generateReport:hover {
@@ -151,7 +212,7 @@ onMounted(() => {
   max-width: 1250px;
   border-collapse: collapse;
   transition: width 500ms;
-  margin: 0 auto;
+  margin: 5px auto 0;
   position: relative;
   border-radius: 5px;
 }
@@ -186,4 +247,23 @@ onMounted(() => {
     margin-top: 10px;
   }
 }
+
+.status-capsule {
+  display: inline-block;
+  padding: 5px 10px;
+  border-radius: 20px;
+  font-size: 14px;
+}
+
+.green {
+  background-color: green;
+  color: white;
+}
+
+.yellow {
+  background-color: yellow;
+  color: black;
+}
+
+
 </style>
