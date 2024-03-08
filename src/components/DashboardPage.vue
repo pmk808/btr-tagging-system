@@ -55,6 +55,7 @@ import { ref, onMounted } from 'vue';
 import HeaderComponent from '../components/dashboardcomp/HeaderComponent.vue';
 import SidebarComponent from '../components/dashboardcomp/SidebarComponent.vue';
 import FooterComponent from '../components/dashboardcomp/FooterComponent.vue';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { supabase } from '../supabaseconfig.js';
 
 const sidebarVisible = ref(true);
@@ -86,7 +87,10 @@ onMounted(() => {
 .dashboard-container {
   display: flex;
   flex-direction: column;
+  position: relative;
+  top: -100px;
   height: 100%;
+  padding-bottom: 10px;
 }
 
 .main-content {
@@ -110,18 +114,21 @@ onMounted(() => {
 .main-wrapper {
   display: flex;
   flex: 1;
-  transition: margin-left 500ms;
   position: relative;
-}
-
-.main-wrapper.sidebar-collapsed {
-  margin-left: 60px;
+  margin-left: 20%;
+  width: 80% ;
+  transition: margin-left 500ms, width 500ms;
 }
 
 .dashboard-content {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   grid-gap: 20px;
+}
+
+.main-wrapper.sidebar-collapsed {
+  margin-left: 0;
+  width: 100%;
 }
 
 .generateReport {
@@ -152,8 +159,9 @@ onMounted(() => {
 .document-table th,
 .document-table td {
   border: 1px solid #dddddd;
-  padding: 8px;
+  padding: 5px;
   text-align: center;
+  font-size: 12px;
 }
 
 .document-table th {

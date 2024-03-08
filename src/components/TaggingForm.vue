@@ -1,9 +1,11 @@
 <template>
   <div class="tagging-form">
-    <h3>Document Tagging Form</h3>
+    <div class="form-row">
+    <h2>Document Tagging Form</h2>
     <div class="header-info">
       <p class="document-code">Document Code: ABC123</p>
-      <p class="current-date">{{ currentDate }}</p>
+      <p class="current-date">Date: {{ currentDate }}</p>
+    </div>
     </div>
     <form @submit.prevent="submitForm">
       <!-- Document Type and Document Title -->
@@ -12,6 +14,9 @@
           <label for="documentType">Document Type</label>
           <input type="text" id="documentType" v-model="documentType" required>
         </div>
+        <div class="form-group">
+          <label for="documentTitle">Document Title</label>
+          <textarea id="documentTitle" v-model="documentTitle" rows="6" required></textarea>
         </div>
       </div>
       <!-- Action Needed and Agency/Source -->
@@ -25,49 +30,47 @@
           <input type="text" id="agencySource" v-model="agencySource" required>
         </div>
       </div>
-      <!-- Received By/From -->
-      <div class="form-group">
-        <label for="receivedBy">Received By / From</label>
-        <input type="text" id="receivedBy" v-model="receivedBy" required>
+      <!-- Received By/From and Forward To -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="receivedBy">Received By / From: &nbsp;</label>
+          <input type="text" id="receivedBy" v-model="receivedBy" required>
+        </div>
+        <div class="form-group">
+          <label for="forward">Forwarded To: &nbsp;</label>
+          <input type="text" id="forward" v-model="forward" required>
+        </div>
       </div>
-      <!-- Forwarded To: -->
-      <div class="form-group">
-        <label for="forward">Forwarded To:</label>
-        <input type="text" id="forward" v-model="forward" required>
-      </div>
-      <!-- Date -->
-      <div class="form-group">
-        <label for="date">Forward Date</label>
-        <input type="date" id="date" v-model="date" required>
-      </div>
-      <!-- Office: -->
-      <div class="form-group">
-        <label for="department">Office:</label>
-        <select v-model="department">
-          <option disabled value="">Select Department</option>
-          <option value="Accounting">Accounting Office</option>
-          <option value="Provincial">Provincial Office</option>
-          <option value="Regional">Regional Office</option>
-          <option value="RDoffice">RD Office</option>
-        </select>
-      </div>
-      <!-- In or Out: -->
-      <div class="form-group">
-        <label for="in_out">In or Out:</label>
-        <select v-model="in_out">
-          <option disabled value="">Select</option>
-          <option value="Incoming">Incoming</option>
-          <option value="Outgoing">Outgoing</option>
-        </select>
+      <!-- Office: and In or Out: -->
+      <div class="form-row">
+        <div class="form-group">
+          <label for="department">Office: &nbsp;</label>
+          <select v-model="department" required>
+            <option disabled value="">Select Department</option>
+            <option value="Accounting">Accounting Office</option>
+            <option value="Provincial">Provincial Office</option>
+            <option value="Regional">Regional Office</option>
+            <option value="RDoffice">RD Office</option>
+          </select>
+        </div>
+        <div class="form-group">
+          <label for="in_out">In or Out: &nbsp;</label>
+          <select v-model="in_out" required>
+            <option disabled value="">Select</option>
+            <option value="Incoming">Incoming</option>
+            <option value="Outgoing">Outgoing</option>
+          </select>
+        </div>
       </div>
       <!-- Submit Button -->
       <div class="buttons">
-        <button type="submit">Submit</button>&nbsp;
+        <button type="submit">Submit</button>&nbsp;&nbsp;
         <button type="reset" @click="resetForm">Clear</button>
       </div>
     </form>
   </div>
 </template>
+
 
 <script setup>
 import { ref } from 'vue';
@@ -103,8 +106,8 @@ const generateDocumentCode = () => {
 const submitForm = async () => {
   const documentCode = generateDocumentCode();
 
-const currentDate = new Date().toISOString().split('T')[0];
-  
+  const currentDate = new Date().toISOString().split('T')[0];
+
   if (documentType.value && documentTitle.value && actionsNeeded.value && receivedBy.value && agencySource.value && forward.value && date.value && department.value && in_out.value && status.value) {
     try {
       const { error } = await supabase
@@ -119,26 +122,22 @@ const currentDate = new Date().toISOString().split('T')[0];
             rcv_date: currentDate,
             agency: agencySource.value,
             fwd_to: forward.value,
-            fwd_date: date.value,
+            fwd_date: currentDate,
             office: department.value,
             in_out: in_out.value,
             status: status.value,
           },
         ]);
-      
+
       if (error) {
         throw error;
       }
 
       resetForm();
-    
-  } catch (error) {
+
+    } catch (error) {
       console.error('Error inserting form data into Supabase:', error.message);
     }
-=======
-const closeModal = () => { 
-  emit('close-modal');
-};
   } else {
     // Handle form validation errors or display an error message
     console.error('Please fill in all fields');
@@ -167,11 +166,21 @@ const resetForm = () => {
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5); /* Semi-transparent black */
+  background-color: rgba(0, 0, 0, 0.5);
+  /* Semi-transparent black */
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999; /* Ensure it appears above other content */
+  z-index: 9999;
+  /* Ensure it appears above other content */
+}
+
+.tagging-form {
+  position: relative;
+  top: -100px;
+  width: 60%;
+  margin-left: 40%;
+  margin: 0 auto;
 }
 
 /* Modal Dialog */
@@ -180,14 +189,12 @@ const resetForm = () => {
   padding: 20px;
   border-radius: 10px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.5);
-  width: 70%; /* Expand the width */
-  max-height: 80vh; /* Set a maximum width */
-  overflow-y: auto; /* Hide the overflow content */
-}
-
-/* Modal Content */
-.modal-content {
-  /* Additional styling for modal content */
+  width: 70%;
+  /* Expand the width */
+  max-height: 100vh;
+  /* Set a maximum width */
+  overflow-y: auto;
+  /* Hide the overflow content */
 }
 
 /* Modal Header */
@@ -195,9 +202,12 @@ const resetForm = () => {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  border-bottom: 1px solid #ccc; /* Add a border between header and body */
-  padding-bottom: 10px; /* Add some padding at the bottom */
-  margin-bottom: 10px; /* Add some margin at the bottom */
+  border-bottom: 1px solid #ccc;
+  /* Add a border between header and body */
+  padding-bottom: 10px;
+  /* Add some padding at the bottom */
+  margin-bottom: 10px;
+  /* Add some margin at the bottom */
 }
 
 /* Header Info */
@@ -219,22 +229,37 @@ const resetForm = () => {
 
 /* Modal Body */
 .modal-body {
-  height: 650px; /* Adjust the height */
+  height: 300px;
+  /* Adjust the height */
 }
 
 /* Form Group */
 .form-group {
   margin-bottom: 1rem;
+  width: 48%;
+}
+
+.form-row {
+  display: flex;
+  justify-content: space-between;
+}
+
+.label {
+  display: inline-block;
+  width: 20%;
 }
 
 /* Form Inputs */
 input[type="text"],
-input[type="date"],
+textarea,
 select {
-  width: calc(100% - 2px); /* Adjust the width to accommodate the border */
+  width: calc(100% - 10px);
+  /* Adjust the width to accommodate the border */
   padding: 0.5rem;
   border: 1px solid #ccc;
   border-radius: 4px;
+  font-family: 'Poppins', sans-serif;
+  font-size: 12px;
 }
 
 /* Submit Button */
@@ -250,12 +275,13 @@ button[type="reset"] {
 
 button[type="submit"]:hover,
 button[type="reset"]:hover {
-  background-color: #001F5E;
+  background-color: #FDD116;
 }
 
 /* Buttons Container */
 .buttons {
   margin-top: 1rem;
   text-align: right;
+  font-size: 20px;
 }
 </style>
