@@ -137,9 +137,7 @@ const submitForm = async () => {
   const documentCode = generateDocumentCode();
   const currentDate = new Date().toLocaleDateString();
 
-  const currentDate = new Date().toISOString().split('T')[0];
-
-  if (documentType.value && documentTitle.value && actionsNeeded.value && receivedBy.value && agencySource.value && forward.value && date.value && department.value && in_out.value && status.value) {
+  if (documentType.value && documentTitle.value && actionsNeeded.value && receivedBy.value && agencySource.value && forward.value && department.value && in_out.value && status.value) {
 
     try {
       const { error } = await supabase
