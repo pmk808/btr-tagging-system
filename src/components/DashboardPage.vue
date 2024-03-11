@@ -29,8 +29,8 @@
                 </select>
               </div>
               <div class="search-bar">
-    <input type="text" v-model="searchQuery" placeholder="Search...">&nbsp;
-    <button @click="searchDocuments">Search <font-awesome-icon :icon="['fas', 'magnifying-glass']" /></button>
+    <input type="text" v-model="searchQuery" placeholder="Search...">
+    <button @click="searchDocuments"><font-awesome-icon :icon="['fas', 'magnifying-glass']" /></button>
   </div>
             </div>
           <table class="document-table">
@@ -359,6 +359,27 @@ function toggleFilter() {
   background-color: #fdd116;
   color: #0038A7;
   transition: 0.5s ease;
+}
+
+.search-bar input {
+  font-size: 15px;
+  padding: 5px;
+  border-radius: 10px;
+  border: 1px solid #0038A7;
+  box-shadow: #0038A7 1px;
+  color: #000;
+}
+
+.search-bar button {
+  background-color: #0038A7;
+  color: #fdfdfd;
+  border: 1px solid #fff;
+  box-shadow: #dddddd 1px;
+  border-radius: 20px;
+  padding: 5px;
+  cursor: pointer;
+  margin-left: 5px;
+  font-size: 25px;
 }
 
 .document-table {
