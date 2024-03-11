@@ -49,7 +49,7 @@ const logout = () => {
 <style scoped>
 /* Sidebar Styles */
 .sidebar {
-  width: 180px;
+  width: 150px;
   height: 100%;
   float: left;
   position: fixed;
