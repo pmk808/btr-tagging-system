@@ -10,14 +10,6 @@
 
       <div class="main-content">
         <div class="dashboard-content" v-if="isLoggedIn">
-
-                <tr v-for="document in documentList" :key="document.id" 
-      :class="{ 'edited-row': document.id === editedRowId, 'highlighted-row': document.id === deletedRowId }">
-                 
-       <font-awesome-icon :icon="['fas', 'edit']" @click="openEditModal(document)" class="action-icon" />
-        <font-awesome-icon :icon="['fas', 'trash-alt']" @click="confirmDelete(document)" class="action-icon" />
-      </td>
-              
           <div class="generate-filter-container">
             <div class="generate-report-button">
               <button class="generateReport" @click="generateReport">Generate Report&nbsp;
@@ -32,60 +24,65 @@
               </button>
               <div v-show="isOpen" class="filter-dropdown">
                 <select v-model="selectedFilters" multiple @change="filterTable">
-                  <option v-for="option in filterOptions" :key="option.value" :value="option.value">{{ option.label }}
-                  </option>
+                  <option v-for="option in filterOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
                 </select>
               </div>
               <div class="search-bar">
-    <input type="text" v-model="searchQuery" placeholder="Search...">
-    <button @click="searchDocuments"><font-awesome-icon :icon="['fas', 'magnifying-glass']" /></button>
-  </div>
+                <input type="text" v-model="searchQuery" placeholder="Search...">
+                <button @click="searchDocuments"><font-awesome-icon :icon="['fas', 'magnifying-glass']" /></button>
+              </div>
             </div>
-          <table class="document-table">
-            <thead>
-              <tr>
-                <th>Document Code</th>
-                <th>Document Type</th>
-                <th>Document Title</th>
-                <th>Action Needed</th>
-                <th>Agency/Source</th>
-                <th>Received By/from</th>
-                <th>Date Received</th>
-                <th>Forwarded To:</th>
-                <th>Date</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody v-if="!loading">
-              <tr v-for="document in documentList" :key="document.code">
-                <td>{{ document.document_code }}</td>
-                <td>{{ document.document_type }}</td>
-                <td>{{ document.document_title }}</td>
-                <td>{{ document.actions }}</td>
-                <td>{{ document.agency }}</td>
-                <td>{{ document.received_from }}</td>
-                <td>{{ document.rcv_date }}</td>
-                <td>{{ document.fwd_to }}</td>
-                <td>{{ document.fwd_date }}</td>
-                <td>
-                  <div :class="getStatusClass(document.status)">
-                    {{ document.status }}
-                  </div>
-                </td>
-              </tr>
-            </tbody>
-            <tbody v-if="loading">
-              <tr>
-                <td colspan="10" class="loading-indicator-cell">
-                  <div class="loading-indicator"></div>
-                </td>
-              </tr>
-            </tbody>
-          </table>
-          <div class="pagination-container">
-            <button @click="changePage('Previous')" :disabled="currentPage.value === 1">Previous</button>&nbsp;
-            <button @click="changePage('Next')" :disabled="nextButtonDisabled">Next</button>
-
+            <table class="document-table">
+              <thead>
+                <tr>
+                  <th>Document Code</th>
+                  <th>Document Type</th>
+                  <th>Document Title</th>
+                  <th>Action Needed</th>
+                  <th>Agency/Source</th>
+                  <th>Received By/from</th>
+                  <th>Date Received</th>
+                  <th>Forwarded To:</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                  <th>Edit</th>
+                </tr>
+              </thead>
+              <tbody v-if="!loading">
+                <tr v-for="document in documentList" :key="document.id" 
+      :class="{ 'edited-row': document.id === editedRowId, 'highlighted-row': document.id === deletedRowId }">
+                  <td>{{ document.document_code }}</td>
+                  <td>{{ document.document_type }}</td>
+                  <td>{{ document.document_title }}</td>
+                  <td>{{ document.actions }}</td>
+                  <td>{{ document.agency }}</td>
+                  <td>{{ document.received_from }}</td>
+                  <td>{{ document.rcv_date }}</td>
+                  <td>{{ document.fwd_to }}</td>
+                  <td>{{ document.fwd_date }}</td>
+                  <td>
+                    <div :class="getStatusClass(document.status)">
+                      {{ document.status }}
+                    </div>
+                  </td>
+                  <td>
+       <font-awesome-icon :icon="['fas', 'edit']" @click="openEditModal(document)" class="action-icon" />
+        <font-awesome-icon :icon="['fas', 'trash-alt']" @click="confirmDelete(document)" class="action-icon" />
+      </td>
+                </tr>
+              </tbody>
+              <tbody v-if="loading">
+                <tr>
+                  <td colspan="10" class="loading-indicator-cell">
+                    <div class="loading-indicator"></div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+            <div class="pagination-container">
+              <button @click="changePage('Previous')" :disabled="currentPage.value === 1">Previous</button>&nbsp;
+              <button @click="changePage('Next')" :disabled="nextButtonDisabled">Next</button>
+            </div>
           </div>
         </div>
       </div>
@@ -94,58 +91,57 @@
 
     <!-- Modal -->
     <div v-if="isEditModalOpen" class="modal">
-  <div class="modal-content">
-    <div class="modal-header">
-      <h2>Edit Document</h2>
-    </div>
-    <div class="modal-body">
-      <form @submit.prevent="submitForm">
-        <label for="documentCode">Document Code:</label>
-        <input type="text" id="documentCode" v-model="editedDocument.document_code" required readonly>
-
-        <label for="documentType">Document Type:</label>
-        <input type="text" id="documentType" v-model="editedDocument.document_type" required>
-
-        <label for="documentTitle">Document Title:</label>
-        <input type="text" id="documentTitle" v-model="editedDocument.document_title" required>
-
-        <label for="actionsNeeded">Actions Needed:</label>
-        <input type="text" id="actionsNeeded" v-model="editedDocument.actions" required>
-
-        <label for="receivedBy">Received By/From:</label>
-        <input type="text" id="receivedBy" v-model="editedDocument.received_from" required>
-
-        <label for="agencySource">Agency/Source:</label>
-        <input type="text" id="agencySource" v-model="editedDocument.agency" required>
-
-        <label for="forward">Forward To:</label>
-        <input type="text" id="forward" v-model="editedDocument.fwd_to" required>
-
-        <label for="department">Office:</label>
-        <input type="text" id="department" v-model="editedDocument.office" required>
-
-        <label for="in_out">In/Out:</label>
-        <input type="text" id="in_out" v-model="editedDocument.in_out" required>
-
-        <label for="status">Status:</label>
-<select id="status" v-model="editedDocument.status" required>
-  <option value="Received">Received</option>
-  <option value="Pending">Pending</option>
-  </select>
-
-        <div class="button-container">
-          <button type="submit" class="modal-button">Save</button>
-          <button class="close modal-button cancel-button" @click="closeEditModal">Cancel</button>
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Edit Document</h2>
         </div>
-      </form>
+        <div class="modal-body">
+          <form @submit.prevent="submitForm">
+            <label for="documentCode">Document Code:</label>
+            <input type="text" id="documentCode" v-model="editedDocument.document_code" required readonly>
+
+            <label for="documentType">Document Type:</label>
+            <input type="text" id="documentType" v-model="editedDocument.document_type" required>
+
+            <label for="documentTitle">Document Title:</label>
+            <input type="text" id="documentTitle" v-model="editedDocument.document_title" required>
+
+            <label for="actionsNeeded">Actions Needed:</label>
+            <input type="text" id="actionsNeeded" v-model="editedDocument.actions" required>
+
+            <label for="receivedBy">Received By/From:</label>
+            <input type="text" id="receivedBy" v-model="editedDocument.received_from" required>
+
+            <label for="agencySource">Agency/Source:</label>
+            <input type="text" id="agencySource" v-model="editedDocument.agency" required>
+
+            <label for="forward">Forward To:</label>
+            <input type="text" id="forward" v-model="editedDocument.fwd_to" required>
+
+            <label for="department">Office:</label>
+            <input type="text" id="department" v-model="editedDocument.office" required>
+
+            <label for="in_out">In/Out:</label>
+            <input type="text" id="in_out" v-model="editedDocument.in_out" required>
+
+            <label for="status">Status:</label>
+            <select id="status" v-model="editedDocument.status" required>
+              <option value="Received">Received</option>
+              <option value="Pending">Pending</option>
+            </select>
+
+            <div class="button-container">
+              <button type="submit" class="modal-button">Save</button>
+              <button class="close modal-button cancel-button" @click="closeEditModal">Cancel</button>
+            </div>
+          </form>
+        </div>
+      </div>
     </div>
   </div>
-  </div>
 </template>
 
 
-  </div>
-</template>
 
 <script setup>
 import { ref, onMounted } from 'vue';
