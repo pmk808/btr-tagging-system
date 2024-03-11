@@ -3,67 +3,71 @@
     <div class="HeaderComponent">
       <HeaderComponent />
     </div>
-    
+
     <div class="main-wrapper" :class="{ 'sidebar-collapsed': !sidebarVisible }">
-      
+
       <SidebarComponent :sidebar-visible="sidebarVisible" @toggle-sidebar="toggleSidebar" />
-      
+
       <div class="main-content">
         <div class="dashboard-content" v-if="isLoggedIn">
-      </div>
-      <div class="generate-report-button">
-          <button class="generateReport" @click="generateReport">Generate Report&nbsp;
-            <font-awesome-icon :icon="['fas', 'download']" />
-          </button>
-          <table class="document-table">
-            
-            <thead>
-              <tr>
-                <th>Document Code</th>
-                <th>Document Type</th>
-                <th>Document Title</th>
-                <th>Action Needed</th>
-                <th>Agency/Source</th>
-                <th>Received By/from</th>
-                <th>Date Received</th>
-                <th>Forwarded To:</th>
-                <th>Date</th>
-                <th>Status</th>
-              </tr>
-            </thead>
-            <tbody v-if="!loading">
-              <tr v-for="document in documentList" :key="document.code">
-                <td>{{ document.document_code }}</td>
-                <td>{{ document.document_type }}</td>
-                <td>{{ document.document_title }}</td>
-                <td>{{ document.actions }}</td>
-                <td>{{ document.agency }}</td>
-                <td>{{ document.received_from }}</td>
-                <td>{{ document.rcv_date }}</td>
-                <td>{{ document.fwd_to }}</td>
-                <td>{{ document.fwd_date }}</td>
-                <td>
-      <div :class="getStatusClass(document.status)">
-        {{ document.status }}
-      </div>
-    </td>
-              </tr>
-            </tbody>
-            <tbody v-if="loading">
-            <tr>
-              <td colspan="10" class="loading-indicator-cell">
-                <div class="loading-indicator"></div>
-              </td>
-            </tr>
-          </tbody>
-          </table>
+          <div class="generate-report-button">
+            <button class="generateReport" @click="generateReport">Generate Report&nbsp;
+              <font-awesome-icon :icon="['fas', 'download']" />
+            </button>
+            <table class="document-table">
+
+              <thead>
+                <tr>
+                  <th>Document Code</th>
+                  <th>Document Type</th>
+                  <th>Document Title</th>
+                  <th>Action Needed</th>
+                  <th>Agency/Source</th>
+                  <th>Received By/from</th>
+                  <th>Date Received</th>
+                  <th>Forwarded To:</th>
+                  <th>Date</th>
+                  <th>Status</th>
+                </tr>
+              </thead>
+              <tbody v-if="!loading">
+                <tr v-for="document in documentList" :key="document.code">
+                  <td>{{ document.document_code }}</td>
+                  <td>{{ document.document_type }}</td>
+                  <td>{{ document.document_title }}</td>
+                  <td>{{ document.actions }}</td>
+                  <td>{{ document.agency }}</td>
+                  <td>{{ document.received_from }}</td>
+                  <td>{{ document.rcv_date }}</td>
+                  <td>{{ document.fwd_to }}</td>
+                  <td>{{ document.fwd_date }}</td>
+                  <td>
+                    <div :class="getStatusClass(document.status)">
+                      {{ document.status }}
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+              <tbody v-if="loading">
+                <tr>
+                  <td colspan="10" class="loading-indicator-cell">
+                    <div class="loading-indicator"></div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="pagination-container">
+            <button @click="changePage('Previous')" :disabled="currentPage.value === 1">Previous</button>
+            <button @click="changePage('Next')" :disabled="nextButtonDisabled">Next</button> 
+          </div>
         </div>
-       
+        <FooterComponent />
       </div>
-      <FooterComponent />
     </div>
   </div>
 </template>
+
 
 <script setup>
 import { ref, onMounted } from 'vue';
@@ -73,28 +77,45 @@ import FooterComponent from '../components/dashboardcomp/FooterComponent.vue';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { supabase } from '../supabaseconfig.js';
 
+const nextButtonDisabled = ref(false);
 const sidebarVisible = ref(true);
 const isLoggedIn = ref(true);
 const documentList = ref([]);
 const loading = ref(false);
+const currentPage = ref(1);
+const itemsPerPage = ref(10);
 
 function toggleSidebar() {
   sidebarVisible.value = !sidebarVisible.value;
 }
 
 async function fetchDocuments() {
-  loading.value = true; // Set loading to true before fetching documents
+  console.log('Fetching documents for page:', currentPage.value);
+  loading.value = true; 
   try {
-    const { data, error } = await supabase.from('taggingForm').select('*');
+    const { data, error } = await supabase
+      .from('taggingForm')
+      .select('*', { count: 'exact' }) 
+      .range((currentPage.value - 1) * itemsPerPage.value, currentPage.value * itemsPerPage.value - 1); 
+
     if (error) {
       console.error('Error fetching documents:', error.message);
     } else {
       documentList.value = data;
+
+      // Check if it's the last page
+      if (data.length < itemsPerPage.value) { 
+        // Assuming you have a way to manage the disabled state of your "Next" button, e.g., a ref called 'nextButtonDisabled'
+        nextButtonDisabled.value = true; 
+      } else {
+        // Re-enable "Next" button in case it was previously disabled
+        nextButtonDisabled.value = false; 
+      }
     }
   } catch (error) {
     console.error('Error fetching documents:', error.message);
   } finally {
-    loading.value = false; // Set loading to false after fetching documents
+    loading.value = false; 
   }
 }
 
@@ -109,10 +130,49 @@ function getStatusClass(status) {
     'yellow': status === 'Pending'
   };
 }
+
+function changePage(direction) { // Consider changing the parameter name to 'direction'
+  if (direction === 'Previous') {
+    currentPage.value = Math.max(1, currentPage.value - 1); // Prevent going below page 1
+  } else if (direction === 'Next') {
+    currentPage.value++; 
+  } else {
+    console.error('Invalid direction:', direction);
+  }
+
+  fetchDocuments();
+}
+
 </script>
 
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap');
+
+.pagination-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.pagination-container button {
+  background-color: #0038A7;
+  color: #fff;
+  border: none;
+  border-radius: 5px;
+  padding: 7px 12px;
+  cursor: pointer;
+  margin-right: 5px;
+}
+
+.pagination-container button:hover {
+  background-color: #001F5E;
+}
+
+.pagination-container button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
 .button-container {
   display: flex;
