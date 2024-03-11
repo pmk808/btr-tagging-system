@@ -77,7 +77,10 @@
 <script setup>
 import { ref } from 'vue';
 import { supabase } from '../supabaseconfig.js';
+import Swal from 'sweetalert2';
+import { useRouter } from 'vue-router';
 
+const router = useRouter();
 
 const documentType = ref('');
 const documentTitle = ref('');
@@ -164,6 +167,14 @@ const submitForm = async () => {
       }
 
       resetForm();
+      router.push('/dashboard');
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Form Submitted Successfully!',
+        showConfirmButton: false,
+        timer: 1500
+      });
 
     } catch (error) {
 
