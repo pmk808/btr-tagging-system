@@ -24,12 +24,12 @@
               </button>
               <div v-show="isOpen" class="filter-dropdown">
                 <select v-model="selectedFilters" multiple @change="filterTable">
-                  <option v-for="option in filterOptions" :key="option.value" :value="option.value">{{ option.label }}</option>
+                  <option v-for="option in filterOptions" :key="option.value" :value="option.value">{{ option.label }}
+                  </option>
                 </select>
               </div>
               <div class="search-bar">
-                <input type="text" v-model="searchQuery" placeholder="Search...">
-                <button @click="searchDocuments"><font-awesome-icon :icon="['fas', 'magnifying-glass']" /></button>
+                <input type="text" v-model="searchQuery" placeholder="Search Document...">
               </div>
             </div>
             <table class="document-table">
@@ -49,8 +49,8 @@
                 </tr>
               </thead>
               <tbody v-if="!loading">
-                <tr v-for="document in documentList" :key="document.id" 
-      :class="{ 'edited-row': document.id === editedRowId, 'highlighted-row': document.id === deletedRowId }">
+                <tr v-for="document in documentList" :key="document.id"
+                  :class="{ 'edited-row': document.id === editedRowId, 'highlighted-row': document.id === deletedRowId }">
                   <td>{{ document.document_code }}</td>
                   <td>{{ document.document_type }}</td>
                   <td>{{ document.document_title }}</td>
@@ -66,9 +66,11 @@
                     </div>
                   </td>
                   <td>
-       <font-awesome-icon :icon="['fas', 'edit']" @click="openEditModal(document)" class="action-icon" />
-        <font-awesome-icon :icon="['fas', 'trash-alt']" @click="confirmDelete(document)" class="action-icon" />
-      </td>
+                    <font-awesome-icon :icon="['fas', 'edit']" @click="openEditModal(document)" class="action-icon" />
+
+                    <font-awesome-icon :icon="['fas', 'trash-alt']" @click="confirmDelete(document)"
+                      class="action-icon" />
+                  </td>
                 </tr>
               </tbody>
               <tbody v-if="loading">
@@ -94,42 +96,72 @@
       <div class="modal-content">
         <div class="modal-header">
           <h2>Edit Document</h2>
+          <p>Document Code: {{ editedDocument.document_code }}</p>
+          <p>Date Received: {{ editedDocument.rcv_date }}</p>
         </div>
         <div class="modal-body">
           <form @submit.prevent="submitForm">
-            <label for="documentCode">Document Code:</label>
-            <input type="text" id="documentCode" v-model="editedDocument.document_code" required readonly>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="documentType">Document Type:</label>
+                <input type="text" id="documentType" v-model="editedDocument.document_type" required>
+                </div>
+                <div class="form-group">
+                <label for="actionsNeeded">Actions Needed:</label>
+                <input type="text" id="actionsNeeded" v-model="editedDocument.actions" required>
+              </div>
+            </div>
+            <div class="title-group">
+              <label for="documentTitle">Document Title:</label>
+              <textarea id="documentTitle" v-model="editedDocument.document_title" row="6" style="resize: none;" required></textarea>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="agencySource">Agency/Source:</label>
+                <input type="text" id="agencySource" v-model="editedDocument.agency" required>
+                </div>
+                <div class="form-group">
+                <label for="receivedBy">Received By/From:</label>
+                <input type="text" id="receivedBy" v-model="editedDocument.received_from" required>
+              </div>
+            </div>
 
-            <label for="documentType">Document Type:</label>
-            <input type="text" id="documentType" v-model="editedDocument.document_type" required>
-
-            <label for="documentTitle">Document Title:</label>
-            <input type="text" id="documentTitle" v-model="editedDocument.document_title" required>
-
-            <label for="actionsNeeded">Actions Needed:</label>
-            <input type="text" id="actionsNeeded" v-model="editedDocument.actions" required>
-
-            <label for="receivedBy">Received By/From:</label>
-            <input type="text" id="receivedBy" v-model="editedDocument.received_from" required>
-
-            <label for="agencySource">Agency/Source:</label>
-            <input type="text" id="agencySource" v-model="editedDocument.agency" required>
-
-            <label for="forward">Forward To:</label>
-            <input type="text" id="forward" v-model="editedDocument.fwd_to" required>
-
-            <label for="department">Office:</label>
-            <input type="text" id="department" v-model="editedDocument.office" required>
-
-            <label for="in_out">In/Out:</label>
-            <input type="text" id="in_out" v-model="editedDocument.in_out" required>
-
-            <label for="status">Status:</label>
-            <select id="status" v-model="editedDocument.status" required>
-              <option value="Received">Received</option>
-              <option value="Pending">Pending</option>
-            </select>
-
+            <div class="form-row">
+              <div class="form-group">
+                <label for="forward">Forward To:</label>
+                <input type="text" id="forward" v-model="editedDocument.fwd_to" required>
+              </div>
+              <div class="form-group">
+                <label for="forward">Forward Date:</label>
+                <input type="date" id="forward" v-model="editedDocument.fwd_date" required>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <label for="department">Office:</label>
+                <select id="department" v-model="editedDocument.office" required>
+                  <option disabled value="">Select Department</option>
+                  <option value="Accounting">Accounting Office</option>
+                  <option value="Provincial">Provincial Office</option>
+                  <option value="Regional">Regional Office</option>
+                  <option value="RDoffice">RD Office</option>
+                </select>
+                </div>
+                <div class="form-group">
+                <label for="in_out">In/Out:</label>
+                <select type="text" id="in_out" v-model="editedDocument.in_out" required>
+                  <option value="In">Incoming</option>
+                  <option value="Out">Outgoing</option>
+                </select>
+              </div>
+            </div>
+            <div class="form-group">
+              <label for="status">Status:</label>
+              <select id="status" v-model="editedDocument.status" required>
+                <option value="Received">Received</option>
+                <option value="Pending">Pending</option>
+              </select>
+            </div>
             <div class="button-container">
               <button type="submit" class="modal-button">Save</button>
               <button class="close modal-button cancel-button" @click="closeEditModal">Cancel</button>
@@ -140,8 +172,6 @@
     </div>
   </div>
 </template>
-
-
 
 <script setup>
 import { ref, onMounted } from 'vue';
@@ -237,17 +267,17 @@ function changePage(direction) {
 }
 
 const isEditModalOpen = ref(false);
-const editedDocument = ref(null); 
+const editedDocument = ref(null);
 
 
 function openEditModal(document) {
   isEditModalOpen.value = true;
-  editedDocument.value = { ...document }; 
+  editedDocument.value = { ...document };
 }
 
 function closeEditModal() {
   isEditModalOpen.value = false;
-  editedDocument.value = null; 
+  editedDocument.value = null;
 }
 
 function submitForm() {
@@ -269,6 +299,7 @@ async function updateDocumentInDatabase(document) {
         received_from: document.received_from,
         agency: document.agency,
         fwd_to: document.fwd_to,
+        fwd_date: document.fwd_date,
         office: document.office,
         in_out: document.in_out,
         status: document.status
@@ -292,12 +323,12 @@ async function updateDocumentInDatabase(document) {
       timer: 1500
     });
 
-    editedRowId.value = document.id; 
+    editedRowId.value = document.id;
 
-// Revert the highlight effect after 5 seconds
-setTimeout(() => {
-  editedRowId.value = null;
-}, 1000);
+    // Revert the highlight effect after 5 seconds
+    setTimeout(() => {
+      editedRowId.value = null;
+    }, 1000);
     closeEditModal(); // Close the modal after successful update
   } catch (error) {
     console.error('Error updating document:', error.message);
@@ -362,15 +393,17 @@ function toggleFilter() {
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap');
 
 .edited-row {
-  background-color: #ffffcc; /* You can adjust the background color as per your preference */
+  background-color: #ffffcc;
+  /* You can adjust the background color as per your preference */
 }
 
 .highlighted-row {
-  background-color: #ffffcc; /* Adjust the highlight color as per your preference */
+  background-color: #ffffcc;
+  /* Adjust the highlight color as per your preference */
 }
 
-.action-icon + .action-icon {
-  margin-left: 0px; 
+.action-icon+.action-icon {
+  margin-left: 0px;
 }
 
 .pagination-container {
@@ -403,8 +436,8 @@ function toggleFilter() {
   display: flex;
 
   justify-content: center;
-  margin-bottom: 20px; 
-} 
+  margin-bottom: 20px;
+}
 
 
 .generate-report-cell {
@@ -417,12 +450,12 @@ function toggleFilter() {
 
 .loading-indicator {
 
-  border: 4px solid #0038A7; 
-  border-top: 4px solid #FFD700; 
+  border: 4px solid #0038A7;
+  border-top: 4px solid #FFD700;
   border-radius: 50%;
   width: 30px;
   height: 30px;
-  animation: spin 1s linear infinite; 
+  animation: spin 1s linear infinite;
 
 }
 
@@ -516,7 +549,7 @@ function toggleFilter() {
   font-size: 15px;
   color: #fff;
   border-radius: 5px;
-  }
+}
 
 .filter-dropdown select {
   width: 14%;
@@ -632,76 +665,105 @@ function toggleFilter() {
   color: black;
 }
 
-.modal {
-  position: fixed; 
-  z-index: 1; 
-  left: 0;
-  top: 0;
-  width: 100%; 
-  height: 100%;
-  overflow: auto; 
-  background-color: rgb(0,0,0); 
-  background-color: rgba(0,0,0,0.4); 
+.action-icon {
+  cursor: pointer;
+  color: #0038A7;
+  font-size: 20px;
+  padding: 5px;
 }
 
+/* Modal Container */
+.modal {
+  position: fixed;
+  z-index: 1;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  overflow: auto;
+  background-color: rgba(0, 0, 0, 0.4);
+}
 
+/* Modal Content */
 .modal-content {
   background-color: #fefefe;
   margin: 15% auto;
-  padding: 20px;
+  padding: 15px;
   border: 1px solid #888;
-  width: 80%; 
+  width: 80%; /* Adjust width as needed */
+  margin-left:17%;
+  height: -100vh;
 }
 
+/* Modal Header */
 .modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px;
+  margin-bottom: 10px; /* Increase margin bottom */
 }
 
 .modal-header h2 {
   margin: 0;
 }
 
+/* Modal Body */
 .modal-body {
-  padding: 10px 0;
+  padding: 10px;
 }
 
 .modal-body label {
   display: block;
-  margin-bottom: 5px;
+  margin-bottom: 10px;
 }
 
-.modal-body input {
+.modal-body input,
+.modal-body textarea,
+.modal-body select {
   width: 100%;
-  padding: 8px;
+  padding: 0.5rem;
   margin-bottom: 10px;
   border: 1px solid #ccc;
   border-radius: 4px;
-  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+  font-size: 12px; /* Match font size with other form fields */
+}
+
+/* Modal Footer */
+.button-container {
+  display: flex;
+  justify-content: center;
 }
 
 .modal-body button {
   background-color: #0038A7;
   color: #fff;
   border: none;
-  border-radius: 5px;
-  padding: 10px 20px;
+  border-radius: 4px;
+  padding: 8px 16px; /* Adjust padding */
   cursor: pointer;
+  margin-right: 10px; /* Add margin right */
 }
 
 .modal-body button:hover {
   background-color: #001F5E;
 }
 
-.cancel-button { 
-  border: 1px solid #ccc; 
-  padding: 10px 20px;  
-  font-size: 14px;       
-  border-radius: 5px;     
-  cursor: pointer;  
-  margin-left: 5px;      
+.cancel-button {
+  background-color: #ccc;
+  color: #fff;
+}
+
+/* Form Group */
+.form-group {
+  margin-bottom: 1rem;
+  width: 48%;
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
 }
 
 /* Add this CSS to match the styling of other form fields */
@@ -713,30 +775,37 @@ function toggleFilter() {
   border: 1px solid #ccc;
   border-radius: 4px;
   box-sizing: border-box;
-  appearance: none; /* Remove default appearance */
-  background-color: #fff; /* Set background color */
-  cursor: pointer; /* Show pointer cursor on hover */
+  appearance: none;
+  /* Remove default appearance */
+  background-color: #fff;
+  /* Set background color */
+  cursor: pointer;
+  /* Show pointer cursor on hover */
 }
 
 /* Style for the dropdown arrow */
 .modal-body select::after {
-  content: '\25BC'; /* Unicode character for downward arrow */
+  content: '\25BC';
+  /* Unicode character for downward arrow */
   position: absolute;
   top: 50%;
   right: 10px;
   transform: translateY(-50%);
-  pointer-events: none; /* Ensure the arrow doesn't interfere with clicking the select */
+  pointer-events: none;
+  /* Ensure the arrow doesn't interfere with clicking the select */
 }
 
 /* Style for the selected option */
 .modal-body select option:checked {
-  background-color: #0038A7; /* Set background color for selected option */
-  color: #fff; /* Set text color for selected option */
+  background-color: #0038A7;
+  /* Set background color for selected option */
+  color: #fff;
+  /* Set text color for selected option */
 }
 
 /* Hover effect for options */
 .modal-body select option:hover {
-  background-color: #001F5E; /* Set background color on hover */
+  background-color: #001F5E;
+  /* Set background color on hover */
 }
-
 </style>

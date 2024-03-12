@@ -8,40 +8,42 @@
     </div>
     </div>
     <form @submit.prevent="submitForm">
-      <!-- Document Type and Document Title -->
+      <!-- Document Type and Action Needed -->
       <div class="form-row">
         <div class="form-group">
           <label for="documentType">Document Type</label>
           <input type="text" id="documentType" v-model="documentType" required>
         </div>
         <div class="form-group">
-          <label for="documentTitle">Document Title</label>
-          <textarea id="documentTitle" v-model="documentTitle" rows="6" required></textarea>
-        </div>
-      </div>
-      <!-- Action Needed and Agency/Source -->
-      <div class="form-row">
-        <div class="form-group">
           <label for="actionsNeeded">Action(s) Needed</label>
           <input type="text" id="actionsNeeded" v-model="actionsNeeded" required>
         </div>
+      </div>
+      <div class="title-group">
+          <label for="documentTitle">Document Title</label>
+          <textarea id="documentTitle" v-model="documentTitle" rows="6" style="resize: none;" required></textarea>
+        </div>
+      <!-- Agency/Source and Received From/By -->
+      <div class="form-row">
         <div class="form-group">
           <label for="agencySource">Agency/Source</label>
           <input type="text" id="agencySource" v-model="agencySource" required>
         </div>
-      </div>
-
-      <!-- Received By/From and Forward To -->
-      <div class="form-row">
         <div class="form-group">
-          <label for="receivedBy">Received By / From: &nbsp;</label>
+          <label for="receivedBy">Received From/By: &nbsp;</label>
           <input type="text" id="receivedBy" v-model="receivedBy" required>
         </div>
+      </div>
+      <!-- Forward To and Forwarded Date -->
+      <div class="form-row">
         <div class="form-group">
           <label for="forward">Forwarded To: &nbsp;</label>
           <input type="text" id="forward" v-model="forward" required>
         </div>
-
+          <div class="form-group">
+            <label for="fwdDate">Forwarded Date: &nbsp;</label>
+            <input type="text" id="fwdDate" v-model="currentDate" readonly>
+        </div>
       </div>
       <!-- Office: and In or Out: -->
       <div class="form-row">
@@ -303,7 +305,6 @@ select {
   font-family: 'Poppins', sans-serif;
   font-size: 12px;
 }
-
 /* Submit Button */
 button[type="submit"],
 button[type="reset"] {
