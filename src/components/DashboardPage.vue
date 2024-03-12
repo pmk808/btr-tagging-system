@@ -156,20 +156,14 @@
                 </select>
                 </div>
                 <div class="form-group">
-                <label for="in_out">In/Out:</label>
-                <select type="text" id="in_out" v-model="editedDocument.in_out" required>
-                  <option value="In">Incoming</option>
-                  <option value="Out">Outgoing</option>
-                </select>
-              </div>
-            </div>
-            <div class="form-group">
               <label for="status">Status:</label>
               <select id="status" v-model="editedDocument.status" required>
                 <option value="Received">Received</option>
                 <option value="Pending">Pending</option>
               </select>
             </div>
+            </div>
+            
             <div class="button-container">
               <button type="submit" class="modal-button">Save</button>
               <button class="close modal-button cancel-button" @click="closeEditModal">Cancel</button>
