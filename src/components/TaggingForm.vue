@@ -3,7 +3,7 @@
     <div class="form-row">
     <h2>Document Tagging Form</h2>
     <div class="header-info">
-      <p class="document-code">Document Code: ABC123</p>
+      <p class="document-code">Document Code: {{ displayDocumentCode || 'Generating Code...' }} </p>
       <p class="current-date">Date: {{ currentDate }}</p>
     </div>
     </div>
@@ -66,7 +66,9 @@
       </div>
       <!-- Submit Button -->
       <div class="buttons">
-        <button type="submit">Submit</button>&nbsp;&nbsp;
+        <button type="submit" :disabled="isLoading">
+          {{ isLoading ? 'Processing...' : 'Submit' }}
+        </button>&nbsp;
         <button type="reset" @click="resetForm">Clear</button>
       </div>
     </form>
@@ -75,7 +77,7 @@
 
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import { supabase } from '../supabaseconfig.js';
 import Swal from 'sweetalert2';
 import { useRouter } from 'vue-router';
@@ -92,8 +94,18 @@ const department = ref('');
 const in_out = ref('');
 const status = ref('Pending');
 const documentCode = ref(''); 
+const generatedDocumentCode = ref('');
+const displayDocumentCode = ref('');
+const isLoading = ref(true); 
 
 const currentDate = new Date().toLocaleDateString();
+
+onMounted(async () => {
+  isLoading.value = true; // Show loading indicator
+  await updateDocumentCode(); // Generate and immediately display 
+  console.log('Generated Document Code:', generatedDocumentCode.value);
+  isLoading.value = false;
+});
 
 const fetchLatestDocumentCode = async () => {
     try {
@@ -110,7 +122,7 @@ const fetchLatestDocumentCode = async () => {
 
     } catch (error) {
         console.error('Error fetching latest document code:', error);
-        // Handle error gracefully
+        return '';
     }
 };
 
@@ -131,7 +143,23 @@ const generateDocumentCode = () => {
   const paddedTransactionNumber = transactionNumber.toString().padStart(3, '0');
 
   return defaultPrefix + 'R' + year + '-' + month + '-' + paddedTransactionNumber;
+
 };
+
+const updateDocumentCode = async () => {
+  const latestCode = await fetchLatestDocumentCode(); 
+  displayDocumentCode.value = generateDocumentCode(latestCode); 
+};
+
+onMounted(async () => {
+  await updateDocumentCode(); // Initial code generation
+});
+
+watch(in_out, async () => { // Remove newValue and oldValue
+  isLoading.value = true; 
+  await updateDocumentCode(); 
+  isLoading.value = false; 
+});
 
 
 const submitForm = async () => {
@@ -139,6 +167,7 @@ const submitForm = async () => {
   await fetchLatestDocumentCode(); 
   const documentCode = generateDocumentCode();
   const currentDate = new Date().toLocaleDateString();
+
 
   if (documentType.value && documentTitle.value && actionsNeeded.value && receivedBy.value && agencySource.value && forward.value && department.value && in_out.value && status.value) {
 
@@ -165,6 +194,8 @@ const submitForm = async () => {
       if (error) {
         throw error;
       }
+
+      console.log('Generated Document Code:', documentCode);
 
       resetForm();
       router.push('/dashboard');
@@ -198,6 +229,8 @@ const resetForm = () => {
   in_out.value = '';
   status.value = 'Pending';
 };
+
+fetchLatestDocumentCode();
 </script>
 
 <style scoped>

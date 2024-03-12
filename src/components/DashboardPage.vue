@@ -29,7 +29,6 @@
               </div>
               <div class="search-bar">
                 <input type="text" v-model="searchQuery" placeholder="Search...">
-                <button @click="searchDocuments"><font-awesome-icon :icon="['fas', 'magnifying-glass']" /></button>
               </div>
             </div>
             <table class="document-table">
@@ -49,6 +48,7 @@
                 </tr>
               </thead>
               <tbody v-if="!loading">
+                <template v-if="documentList.length > 0">
                 <tr v-for="document in documentList" :key="document.id" 
       :class="{ 'edited-row': document.id === editedRowId, 'highlighted-row': document.id === deletedRowId }">
                   <td>{{ document.document_code }}</td>
@@ -70,6 +70,12 @@
         <font-awesome-icon :icon="['fas', 'trash-alt']" @click="confirmDelete(document)" class="action-icon" />
       </td>
                 </tr>
+              </template>
+              <template v-else>
+          <tr>
+            <td colspan="11" class="no-data-found">No data found</td>
+          </tr>
+        </template>
               </tbody>
               <tbody v-if="loading">
                 <tr>
@@ -144,7 +150,7 @@
 
 
 <script setup>
-import { ref, onMounted } from 'vue';
+import { ref, onMounted, watch } from 'vue';
 import HeaderComponent from '../components/dashboardcomp/HeaderComponent.vue';
 import SidebarComponent from '../components/dashboardcomp/SidebarComponent.vue';
 import FooterComponent from '../components/dashboardcomp/FooterComponent.vue';
@@ -160,6 +166,7 @@ const documentList = ref([]);
 const loading = ref(false);
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
+const searchQuery = ref('');
 
 const deletedRowId = ref(null);
 const editedRowId = ref(null);
@@ -167,6 +174,10 @@ const editedRowId = ref(null);
 function toggleSidebar() {
   sidebarVisible.value = !sidebarVisible.value;
 }
+
+watch(searchQuery, () => {
+  fetchDocuments();
+});
 
 async function confirmDelete(document) {
   const { value } = await Swal.fire({
@@ -184,14 +195,27 @@ async function confirmDelete(document) {
   }
 }
 
+
+
 async function fetchDocuments() {
-  console.log('Fetching documents for page:', currentPage.value);
   loading.value = true;
   try {
-    const { data, error } = await supabase
-      .from('taggingForm')
-      .select('*', { count: 'exact' })
-      .range((currentPage.value - 1) * itemsPerPage.value, currentPage.value * itemsPerPage.value - 1);
+    let query = supabase.from('taggingForm').select('*').order('created_at', { ascending: false });
+
+    // Apply filters if any selected
+    if (selectedFilters.value.length > 0) {
+      query = query.in('in_out', selectedFilters.value);
+    }
+
+    // Apply search query if present
+    if (searchQuery.value) {
+      query = query.or(`document_code.ilike.%${searchQuery.value}%,document_type.ilike.%${searchQuery.value}%,document_title.ilike.%${searchQuery.value}%,actions.ilike.%${searchQuery.value}%,received_from.ilike.%${searchQuery.value}%,agency.ilike.%${searchQuery.value}%,fwd_to.ilike.%${searchQuery.value}%,office.ilike.%${searchQuery.value}%,in_out.ilike.%${searchQuery.value}%,status.ilike.%${searchQuery.value}%`);
+    }
+
+    // Pagination
+    query = query.range((currentPage.value - 1) * itemsPerPage.value, currentPage.value * itemsPerPage.value - 1);
+
+    const { data, error } = await query;
 
     if (error) {
       console.error('Error fetching documents:', error.message);
@@ -201,7 +225,6 @@ async function fetchDocuments() {
       if (data.length < itemsPerPage.value) {
         nextButtonDisabled.value = true;
       } else {
-
         nextButtonDisabled.value = false;
       }
     }
@@ -211,6 +234,7 @@ async function fetchDocuments() {
     loading.value = false;
   }
 }
+
 
 onMounted(() => {
   fetchDocuments();
@@ -334,10 +358,8 @@ async function deleteDocument(document) {
 }
 
 const filterOptions = [
-  { value: 'incoming', label: 'Incoming' },
-  { value: 'outgoing', label: 'Outgoing' },
-  { value: 'monthly', label: 'Monthly' },
-  { value: 'weekly', label: 'Weekly' }
+  { value: 'Incoming', label: 'Incoming' },
+  { value: 'Outgoing', label: 'Outgoing' },
 ];
 
 const selectedFilters = ref([]);
@@ -350,10 +372,10 @@ function toggleFilter() {
   isOpen.value = !isOpen.value;
 }
 
-// Method to handle filter change
-// function filterTable() { ======>>> MC BUTANG DIRE ANG LOGIC SA FILTERING
-//   // Logic to filter the table based on selectedFilters
-// }
+function filterTable() {
+  // Call fetchDocuments() after updating selectedFilters
+  fetchDocuments();
+}
 
 
 </script>
