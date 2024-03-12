@@ -12,6 +12,7 @@
     "@fortawesome/fontawesome-svg-core": "^6.5.1",
     "@fortawesome/vue-fontawesome": "^3.0.6",
     "@supabase/supabase-js": "^2.39.7",
+    "chart.js": "^4.4.2",
     "core-js": "^3.8.3",
     "date-fns": "^3.4.0",
     "jsonwebtoken": "^9.0.2",
