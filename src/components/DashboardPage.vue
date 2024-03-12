@@ -229,7 +229,7 @@ async function fetchDocuments() {
     let query = supabase.from('taggingForm').select('*').order('created_at', { ascending: false });
 
     // Apply filters if any selected
-    if (selectedFilters.value.length > 0) {
+    if (selectedFilters.value.length > 0 && !selectedFilters.value.includes('')) {
       query = query.in('in_out', selectedFilters.value);
     }
 
@@ -387,6 +387,7 @@ async function deleteDocument(document) {
 const filterOptions = [
   { value: 'Incoming', label: 'Incoming' },
   { value: 'Outgoing', label: 'Outgoing' },
+  { value: '', label: 'All' },
 ];
 
 const selectedFilters = ref([]);
