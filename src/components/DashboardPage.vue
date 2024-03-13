@@ -181,7 +181,7 @@ import HeaderComponent from '../components/dashboardcomp/HeaderComponent.vue';
 import SidebarComponent from '../components/dashboardcomp/SidebarComponent.vue';
 import FooterComponent from '../components/dashboardcomp/FooterComponent.vue';
 import Swal from 'sweetalert2';
-
+import XLSX from 'xlsx';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { supabase } from '../supabaseconfig.js';
 
@@ -405,6 +405,28 @@ function filterTable() {
   fetchDocuments();
 }
 
+async function generateReport() {
+  try {
+    // Fetch data from Supabase
+    const { data, error } = await supabase.from('taggingForm').select('*');
+    if (error) {
+      throw error;
+    }
+
+    // Convert fetched data to worksheet
+    const ws = XLSX.utils.json_to_sheet(data);
+
+    // Create a new workbook and append the worksheet
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+
+    // Write the workbook to a file
+    XLSX.writeFile(wb, 'document-report.xlsx');
+  } catch (error) {
+    console.error('Error generating report:', error.message);
+    // Handle error, show error message to the user, etc.
+  }
+}
 
 </script>
 
