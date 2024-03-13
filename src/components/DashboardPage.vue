@@ -12,7 +12,7 @@
         <div class="dashboard-content" v-if="isLoggedIn">
           <div class="generate-filter-container">
             <div class="generate-report-button">
-              <button class="generateReport" @click="generateReport">Generate Report&nbsp;
+              <button class="generateReport" @click="generateReport">Generate Excel&nbsp;
                 <font-awesome-icon :icon="['fas', 'download']" />
               </button>
             </div>
@@ -192,9 +192,9 @@ import HeaderComponent from '../components/dashboardcomp/HeaderComponent.vue';
 import SidebarComponent from '../components/dashboardcomp/SidebarComponent.vue';
 import FooterComponent from '../components/dashboardcomp/FooterComponent.vue';
 import Swal from 'sweetalert2';
-
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { supabase } from '../supabaseconfig.js';
+import XLSX from 'xlsx';
 
 const nextButtonDisabled = ref(false);
 const sidebarVisible = ref(true);
@@ -276,6 +276,32 @@ async function fetchDocuments() {
 onMounted(() => {
   fetchDocuments();
 });
+
+async function generateReport() {
+  // 1. Prepare your data
+  const data = documentList.value.map( doc => ({
+      'Document Code': doc.document_code,
+      'Document Type': doc.document_type,
+      'Document Title': doc.document_title,
+      'Action Needed': doc.actions,
+      'Agency/Source': doc.agency,
+      'Received By/from': doc.received_from,
+      'Date Received': doc.rcv_date,
+      'Forwarded To:': doc.fwd_to,
+      'Date': doc.fwd_date,
+      'Status': doc.status
+  }));
+
+  // 2. Create a worksheet
+  const worksheet = XLSX.utils.json_to_sheet(data);
+
+  // 3. Create a workbook and add the worksheet
+  const workbook = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet 1");  
+
+  // 4. Initiate download
+  XLSX.writeFile(workbook, "document_report.xlsx");
+}
 
 function getStatusClass(status, in_out) {
   if (in_out === 'Incoming') {
