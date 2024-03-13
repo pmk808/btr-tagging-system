@@ -63,9 +63,9 @@
                   <td>{{ document.fwd_to }}</td>
                   <td>{{ document.fwd_date }}</td>
                   <td>
-                    <div :class="getStatusClass(document.status)">
-                      {{ document.status }}
-                    </div>
+                    <div :class="getStatusClass(document.status, document.in_out)">
+  {{ document.status }}
+</div>
                   </td>
                   <td>
                     <font-awesome-icon :icon="['fas', 'edit']" @click="openEditModal(document)" class="action-icon" />
@@ -107,6 +107,7 @@
           <p>Document Code: {{ editedDocument.document_code }}</p>
           <p>Date Received: {{ editedDocument.rcv_date }}</p>
         </div>
+        <h3>{{ editedDocument.in_out }} Document</h3>
         <div class="modal-body">
           <form @submit.prevent="submitForm">
             <div class="form-row">
@@ -141,7 +142,7 @@
               </div>
               <div class="form-group">
                 <label for="forward">Forward Date:</label>
-                <input type="date" id="forward" v-model="editedDocument.fwd_date" required>
+<input type="date" id="forward" v-model="editedDocument.fwd_date" @change="updateStatus" required>
               </div>
             </div>
             <div class="form-row">
@@ -151,16 +152,26 @@
                   <option disabled value="">Select Department</option>
                   <option value="Accounting">Accounting Office</option>
                   <option value="Provincial">Provincial Office</option>
-                  <option value="Regional">Regional Office</option>
+                  <option value="Admin">Admin Office</option>
                   <option value="RDoffice">RD Office</option>
                 </select>
                 </div>
                 <div class="form-group">
               <label for="status">Status:</label>
               <select id="status" v-model="editedDocument.status" required>
-                <option value="Received">Received</option>
-                <option value="Pending">Pending</option>
-              </select>
+  <template v-if="editedDocument.in_out === 'Incoming'">
+    <option value="Forwarded">Forwarded</option>
+    <option value="Pending">Pending</option>
+  </template>
+  <template v-else-if="editedDocument.in_out === 'Outgoing'">
+    <option value="Released">Released</option>
+    <option value="Pending">Pending</option>
+  </template>
+  <template v-else>
+    <!-- Default options -->
+    <option value="">Select Status</option>
+  </template>
+</select>
             </div>
             </div>
             
@@ -266,12 +277,42 @@ onMounted(() => {
   fetchDocuments();
 });
 
-function getStatusClass(status) {
-  return {
-    'status-capsule': true,
-    'green': status === 'Received',
-    'yellow': status === 'Pending'
-  };
+function getStatusClass(status, in_out) {
+  if (in_out === 'Incoming') {
+    return {
+      'status-capsule': true,
+      'green': status === 'Forwarded',
+      'yellow': status === 'Pending'
+    };
+  } else if (in_out === 'Outgoing') {
+    return {
+      'status-capsule': true,
+      'green': status === 'Released',
+      'yellow': status === 'Pending'
+    };
+  } else {
+    return {
+      'status-capsule': true,
+      'green': status === 'Forwarded',
+      'yellow': status === 'Pending'
+    };
+  }
+}
+
+function updateStatus() {
+  // Check if the selected date is not empty
+  if (editedDocument.value.fwd_date) {
+    // Update the status based on the selected date
+    if (editedDocument.value.in_out === 'Incoming') {
+      // Update the status to 'Forwarded' if the document is incoming
+      editedDocument.value.status = 'Forwarded';
+    } else if (editedDocument.value.in_out === 'Outgoing') {
+      // Update the status to 'Released' if the document is outgoing
+      editedDocument.value.status = 'Released';
+    } else {
+      // Handle other cases if necessary
+    }
+  }
 }
 
 function changePage(direction) {
