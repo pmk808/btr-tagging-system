@@ -53,7 +53,7 @@
             <option disabled value="">Select Department</option>
             <option value="Accounting">Accounting Office</option>
             <option value="Provincial">Provincial Office</option>
-            <option value="Regional">Regional Office</option>
+            <option value="Admin">Admin Office</option>
             <option value="RDoffice">RD Office</option>
           </select>
         </div>

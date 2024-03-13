@@ -21,10 +21,11 @@
           <input type="text" v-model="name" placeholder="Name" required>
           <select v-model="department">
             <option disabled value="">Select Department</option>
-            <option value="desk">Front Desk</option>
-            <option value="regional">Regional Office</option>
-            <option value="provincial">Provincial Office</option>
-            <option value="accounting">Accounting Office</option>
+            <option value="Receiving">Receiving Officer</option>
+            <option value="Admin">Admin Office</option>
+            <option value="Provincial">Provincial Office</option>
+            <option value="Accounting">Accounting Office</option>
+            <option value="RD">Regional Director</option>
           </select>
           <button :disabled="loading" type="submit">
             <span v-if="loading">Registering...</span>
@@ -67,6 +68,8 @@ const register = async () => {
       return;
     }
 
+    const isAdmin = ['Accounting', 'Provincial', 'Admin'].includes(department.value) ? false : true;
+
     const { error } = await supabase.auth.signUp({
       email: email.value,
       password: registerPassword.value
@@ -78,7 +81,7 @@ const register = async () => {
       // After successful registration, store additional user details in the Supabase users table
       const { error } = await supabase
         .from('users')
-        .insert([{ email: email.value, name: name.value, department: department.value }]);
+        .insert([{ email: email.value, name: name.value, department: department.value, isAdmin: isAdmin }]);
 
       if (error) {
         registrationError.value = error.message;
