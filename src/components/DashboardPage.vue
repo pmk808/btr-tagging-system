@@ -12,7 +12,7 @@
         <div class="dashboard-content" v-if="isLoggedIn">
           <div class="generate-filter-container">
             <div class="generate-report-button">
-              <button class="generateReport" @click="generateReport">Generate Excel&nbsp;
+              <button class="generateReport" @click="generateReport()">Generate Excel&nbsp;
                 <font-awesome-icon :icon="['fas', 'download']" />
               </button>
             </div>
@@ -278,30 +278,125 @@ onMounted(() => {
 });
 
 async function generateReport() {
-  // 1. Prepare your data
-  const data = documentList.value.map( doc => ({
-      'Document Code': doc.document_code,
-      'Document Type': doc.document_type,
-      'Document Title': doc.document_title,
-      'Action Needed': doc.actions,
-      'Agency/Source': doc.agency,
-      'Received By/from': doc.received_from,
-      'Date Received': doc.rcv_date,
-      'Forwarded To:': doc.fwd_to,
-      'Date': doc.fwd_date,
-      'Status': doc.status
-  }));
+  loading.value = true; // Set loading to true while fetching data
+  try {
+    const workbook = XLSX.utils.book_new();
 
-  // 2. Create a worksheet
-  const worksheet = XLSX.utils.json_to_sheet(data);
+    // Fetch all data from the taggingForm table
+    const { data, error } = await supabase.from('taggingForm').select('*').order('created_at', { ascending: false });
 
-  // 3. Create a workbook and add the worksheet
-  const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, worksheet, "Sheet 1");  
+    if (error) {
+      console.error('Error fetching documents for report:', error.message);
+      return;
+    }
 
-  // 4. Initiate download
-  XLSX.writeFile(workbook, "document_report.xlsx");
+    if (!data || data.length === 0) {
+      console.error('No data available for report.');
+      return;
+    }
+
+    // Separate Incoming and Outgoing data
+    const incomingData = data.filter(doc => doc.in_out === 'Incoming');
+    const outgoingData = data.filter(doc => doc.in_out === 'Outgoing');
+
+    // Filter data based on 'office' column
+    const roxiIncomingData = incomingData.filter(doc => doc.office === 'Admin');
+    const poxiIncomingData = incomingData.filter(doc => doc.office === 'Provincial');
+    const roxiOutgoingData = outgoingData.filter(doc => doc.office === 'Admin');
+    const poxiOutgoingData = outgoingData.filter(doc => doc.office === 'Provincial');
+
+    
+
+    // Define custom column headers
+    const headers = [
+      'Document Code',
+      'Document Type',
+      'Document Title',
+      'Action Needed',
+      'Agency/Source',
+      'Received By/from',
+      'Date Received',
+      'Forwarded To:',
+      'Date',
+      'Status'
+    ];
+
+    // Convert data to Excel format with custom column headers
+    const roxiIncomingWorksheet = XLSX.utils.json_to_sheet(roxiIncomingData.map(doc => {
+      return {
+        'Document Code': doc.document_code,
+        'Document Type': doc.document_type,
+        'Document Title': doc.document_title,
+        'Action Needed': doc.actions,
+        'Agency/Source': doc.agency,
+        'Received By/from': doc.received_from,
+        'Date Received': doc.rcv_date,
+        'Forwarded To:': doc.fwd_to,
+        'Date': doc.fwd_date,
+        'Status': doc.status
+      };
+    }), { header: headers });
+
+    const poxiIncomingWorksheet = XLSX.utils.json_to_sheet(poxiIncomingData.map(doc => {
+      return {
+        'Document Code': doc.document_code,
+        'Document Type': doc.document_type,
+        'Document Title': doc.document_title,
+        'Action Needed': doc.actions,
+        'Agency/Source': doc.agency,
+        'Received By/from': doc.received_from,
+        'Date Received': doc.rcv_date,
+        'Forwarded To:': doc.fwd_to,
+        'Date': doc.fwd_date,
+        'Status': doc.status
+      };
+    }), { header: headers });
+
+    const roxiOutgoingWorksheet = XLSX.utils.json_to_sheet(roxiOutgoingData.map(doc => {
+      return {
+        'Document Code': doc.document_code,
+        'Document Type': doc.document_type,
+        'Document Title': doc.document_title,
+        'Action Needed': doc.actions,
+        'Agency/Source': doc.agency,
+        'Received By/from': doc.received_from,
+        'Date Received': doc.rcv_date,
+        'Forwarded To:': doc.fwd_to,
+        'Date': doc.fwd_date,
+        'Status': doc.status
+      };
+    }), { header: headers });
+
+    const poxiOutgoingWorksheet = XLSX.utils.json_to_sheet(poxiOutgoingData.map(doc => {
+      return {
+        'Document Code': doc.document_code,
+        'Document Type': doc.document_type,
+        'Document Title': doc.document_title,
+        'Action Needed': doc.actions,
+        'Agency/Source': doc.agency,
+        'Received By/from': doc.received_from,
+        'Date Received': doc.rcv_date,
+        'Forwarded To:': doc.fwd_to,
+        'Date': doc.fwd_date,
+        'Status': doc.status
+      };
+    }), { header: headers });
+
+    // Add worksheets to the workbook
+    XLSX.utils.book_append_sheet(workbook, roxiIncomingWorksheet, "ROXI-INC");
+    XLSX.utils.book_append_sheet(workbook, poxiIncomingWorksheet, "POXI-INC");
+    XLSX.utils.book_append_sheet(workbook, roxiOutgoingWorksheet, "ROXI-OUTG");
+    XLSX.utils.book_append_sheet(workbook, poxiOutgoingWorksheet, "POXI-OUTG");
+
+    // Initiate download
+    XLSX.writeFile(workbook, "document_report.xlsx");
+  } catch (error) {
+    console.error('Error generating report:', error.message);
+  } finally {
+    loading.value = false; // Reset loading after fetching data or encountering an error
+  }
 }
+
 
 function getStatusClass(status, in_out) {
   if (in_out === 'Incoming') {
