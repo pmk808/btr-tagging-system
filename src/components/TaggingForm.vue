@@ -218,8 +218,6 @@ const submitForm = async () => {
         throw error;
       }
 
-      console.log('Generated Document Code:', documentCode);
-
       resetForm();
       router.push('/dashboard');
 

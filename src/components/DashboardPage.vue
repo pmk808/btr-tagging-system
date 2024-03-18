@@ -12,7 +12,7 @@
         <div class="dashboard-content" v-if="isLoggedIn">
           <div class="generate-filter-container">
             <div class="generate-report-button">
-              <button class="generateReport" @click="generateReport()">Generate Excel&nbsp;
+              <button class="generateReport" @click="generateReport()">Generate PDF&nbsp;
                 <font-awesome-icon :icon="['fas', 'download']" />
               </button>
             </div>
@@ -196,7 +196,8 @@ import FooterComponent from '../components/dashboardcomp/FooterComponent.vue';
 import Swal from 'sweetalert2';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { supabase } from '../supabaseconfig.js';
-import XLSX from 'xlsx';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 const nextButtonDisabled = ref(false);
 const sidebarVisible = ref(true);
@@ -282,7 +283,7 @@ onMounted(() => {
 async function generateReport() {
   loading.value = true; // Set loading to true while fetching data
   try {
-    const workbook = XLSX.utils.book_new();
+    const doc = new jsPDF('landscape'); // Specify landscape orientation
 
     // Fetch all data from the taggingForm table
     const { data, error } = await supabase.from('taggingForm').select('*').order('created_at', { ascending: false });
@@ -297,16 +298,6 @@ async function generateReport() {
       return;
     }
 
-    // Separate Incoming and Outgoing data
-    const incomingData = data.filter(doc => doc.in_out === 'Incoming');
-    const outgoingData = data.filter(doc => doc.in_out === 'Outgoing');
-
-    // Filter data based on 'office' column
-    const roxiIncomingData = incomingData.filter(doc => doc.office === 'Admin');
-    const poxiIncomingData = incomingData.filter(doc => doc.office === 'Provincial');
-    const roxiOutgoingData = outgoingData.filter(doc => doc.office === 'Admin');
-    const poxiOutgoingData = outgoingData.filter(doc => doc.office === 'Provincial');
-
     // Define custom column headers
     const headers = [
       'Document Code',
@@ -314,56 +305,88 @@ async function generateReport() {
       'Document Title',
       'Action Needed',
       'Agency/Source',
+      'Office',
       'Received By/from',
       'Date Received',
       'Forwarded To:',
-      'Date',
-      'Status'
+      'Date',  
     ];
 
-    // Convert data to Excel format with custom column headers and styles
-    const generateWorksheet = (data) => {
-      const worksheet = XLSX.utils.json_to_sheet(data.map(doc => {
-        return {
-          'Document Code': doc.document_code,
-          'Document Type': doc.document_type,
-          'Document Title': doc.document_title,
-          'Action Needed': doc.actions,
-          'Agency/Source': doc.agency,
-          'Received By/from': doc.received_from,
-          'Date Received': doc.rcv_date,
-          'Forwarded To:': doc.fwd_to,
-          'Date': doc.fwd_date,
-          'Status': doc.status
-        };
-      }), { header: headers });
-
-      // Set column widths
-      const colWidths = [{ wch: 20 }, { wch: 20 }, { wch: 40 }, { wch: 30 }, { wch: 30 }, { wch: 30 }, { wch: 15 }, { wch: 30 }, { wch: 15 }, { wch: 15 }];
-      worksheet['!cols'] = colWidths;
-
-      // Apply font and size to each cell
-      for (let rowIndex = 2; rowIndex <= incomingData.length + 1; rowIndex++) {
-        for (let colIndex = 0; colIndex < headers.length; colIndex++) {
-          const cellAddress = XLSX.utils.encode_cell({ r: rowIndex, c: colIndex });
-          if (!worksheet[cellAddress]) {
-            worksheet[cellAddress] = { t: 's', v: '' }; // Initialize cell if it doesn't exist
-          }
-          worksheet[cellAddress].s = { font: { name: 'Arial', sz: 14 } }; // Set font and size
+    // Function to add table to PDF
+    const addTable = (dataArray, title, isFirstTable) => {
+      if (dataArray.length > 0) {
+        if (!isFirstTable) {
+          // Add a new page
+          doc.addPage('landscape');
         }
-      }
+        
+        // Add bold title for the section
+        doc.setFont('helvetica', 'bold');
+        doc.setFontSize(12);
+        doc.text(title, 14, 10); // Adjust the position as needed
 
-      return worksheet;
+        // Reset font style
+        doc.setFont('helvetica', 'normal');
+
+        // Add the table
+        doc.autoTable({
+          startY: 20, // Start after the title
+          head: [headers],
+          body: dataArray.map(doc => [
+            doc.document_code,
+            doc.document_type,
+            doc.document_title,
+            doc.actions,
+            doc.agency,
+            doc.office,
+            doc.received_from,
+            doc.rcv_date,
+            doc.fwd_to,
+            doc.fwd_date,
+          ]),
+          columnStyles: {
+            0: { columnWidth: 'auto' },
+            1: { columnWidth: 'auto' },
+            2: { columnWidth: 'auto' },
+            3: { columnWidth: 30 },
+            4: { columnWidth: 30 },
+            5: { columnWidth: 'auto' },
+            6: { columnWidth: 30 },
+            7: { columnWidth: 'auto' },
+            8: { columnWidth: 25 },
+            9: { columnWidth: 'auto' },
+          },
+          theme: 'grid',
+          styles: {
+            font: 'helvetica',
+            fontSize: 10,
+            cellPadding: 3,
+            overflow: 'linebreak',
+            halign: 'center',
+          },
+          headStyles: {
+            fillColor: [0, 56, 167],
+            textColor: [255, 255, 255],
+          },
+        });
+      }
     };
 
-    // Add worksheets to the workbook
-    XLSX.utils.book_append_sheet(workbook, generateWorksheet(roxiIncomingData), "ROXI-INC");
-    XLSX.utils.book_append_sheet(workbook, generateWorksheet(poxiIncomingData), "POXI-INC");
-    XLSX.utils.book_append_sheet(workbook, generateWorksheet(roxiOutgoingData), "ROXI-OUTG");
-    XLSX.utils.book_append_sheet(workbook, generateWorksheet(poxiOutgoingData), "POXI-OUTG");
+    // Add tables for each section with titles
+    let isFirstTable = true;
+    addTable(data.filter(doc => doc.in_out === 'Incoming' && doc.office === 'Admin'), 'Regional - Incoming', isFirstTable);
+    isFirstTable = false;
+    addTable(data.filter(doc => doc.in_out === 'Outgoing' && doc.office === 'Admin'), 'Regional - Outgoing', isFirstTable);
+    addTable(data.filter(doc => doc.in_out === 'Incoming' && doc.office === 'Provincial'), 'Provincial - Incoming', isFirstTable);
+    addTable(data.filter(doc => doc.in_out === 'Outgoing' && doc.office === 'Provincial'), 'Provincial - Outgoing', isFirstTable);
+    addTable(data.filter(doc => doc.in_out === 'Incoming' && doc.office === 'RDoffice'), 'RD - Incoming', isFirstTable);
+    addTable(data.filter(doc => doc.in_out === 'Outgoing' && doc.office === 'RDoffice'), 'RD - Outgoing', isFirstTable);
+    addTable(data.filter(doc => doc.in_out === 'Incoming' && doc.office === 'Accounting'), 'Accounting - Incoming', isFirstTable);
+    addTable(data.filter(doc => doc.in_out === 'Outgoing' && doc.office === 'Accounting'), 'Accounting - Outgoing', isFirstTable);
 
-    // Initiate download
-    XLSX.writeFile(workbook, "document_report.xlsx");
+
+    // Save the PDF
+    doc.save('document_report.pdf');
   } catch (error) {
     console.error('Error generating report:', error.message);
   } finally {
