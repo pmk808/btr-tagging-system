@@ -9,9 +9,13 @@
       <li :class="{ 'active': $route.path === '/dashboard' }"><router-link to="/dashboard">
           <span class="icons">
             <font-awesome-icon :icon="['fas', 'house']" /></span>Dashboard</router-link></li>
-      <li :class="{ 'active': $route.path === '/tagging' }"><router-link to="/tagging">
-          <span class="icons"><font-awesome-icon :icon="['fas', 'tags']" /></span>Tagging
-        </router-link></li>
+      <!-- Conditionally render the "Tagging" tab -->
+      <template v-if="isAdmin">
+        <li :class="{ 'active': $route.path === '/tagging' }"><router-link to="/tagging">
+            <span class="icons"><font-awesome-icon :icon="['fas', 'tags']" /></span>Tagging
+          </router-link></li>
+      </template>
+      <!-- End of conditional rendering -->
       <li :class="{ 'active': $route.path === '/reports' }"><router-link to="/reports">
           <span class="icons">
             <font-awesome-icon :icon="['fas', 'chart-area']" /></span>Reports</router-link></li>
@@ -29,10 +33,12 @@ import '@fortawesome/fontawesome-free/js/all.js';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { useRouter } from 'vue-router';
 
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
+import { supabase } from '../../supabaseconfig.js'; // Assuming you have a file for Supabase configuration
 
 const router = useRouter();
 const sidebarVisible = ref(true);
+const isAdmin = ref(false); // Initialize isAdmin as false by default
 
 const toggleSidebar = () => {
   sidebarVisible.value = !sidebarVisible.value;
@@ -44,6 +50,69 @@ const logout = () => {
   // Redirect to login page
   router.push('/');
 };
+
+const fetchUserData = async () => {
+  // Fetch token from localStorage
+  const token = localStorage.getItem('sb-yszwlktldjrohxuneyop-auth-token');
+
+  // Function to extract the email from the access token
+  const extractEmailFromToken = (token) => {
+    try {
+      // Parse the token as JSON
+      const tokenData = JSON.parse(token);
+      // Extract the email from the user object
+      const email = tokenData?.user?.email;
+      return email;
+    } catch (error) {
+      console.error('Error extracting email from token:', error.message);
+      return null;
+    }
+  };
+
+  const email = extractEmailFromToken(token);
+
+  if (email) {
+    try {
+      // Fetch user data from your database based on the email
+      const { userData, dbError } = await fetchUserDataFromDatabase(email);
+      if (dbError) {
+        throw dbError;
+      }
+      
+      // Check if user is admin
+      isAdmin.value = userData?.isAdmin ?? false;
+    } catch (error) {
+      console.error('Error fetching user data:', error.message);
+    }
+  } else {
+    console.error('Email is missing from token.');
+  }
+};
+
+const fetchUserDataFromDatabase = async (email) => {
+  try {
+    // Make a request to Supabase to fetch user data based on the email
+    const { data: userData, error } = await supabase
+      .from('users')
+      .select('isAdmin')
+      .eq('email', email)
+      .single();
+      
+    if (error) {
+      throw error;
+    }
+
+    return { userData };
+  } catch (error) {
+    console.error('Error fetching user data from database:', error.message);
+    return { dbError: error };
+  }
+};
+
+
+
+// Fetch user data when the component is mounted
+onMounted(fetchUserData);
 </script>
 
 <style scoped>
