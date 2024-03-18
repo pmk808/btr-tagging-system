@@ -40,7 +40,8 @@
                   <th>Document Title</th>
                   <th>Action Needed</th>
                   <th>Agency/Source</th>
-                  <th>Received By/from</th>
+                  <th>Office</th>
+                  <th>Received From/By</th>
                   <th>Date Received</th>
                   <th>Forwarded To:</th>
                   <th>Date</th>
@@ -58,6 +59,7 @@
                   <td>{{ document.document_title }}</td>
                   <td>{{ document.actions }}</td>
                   <td>{{ document.agency }}</td>
+                  <td>{{ document.office }}</td>
                   <td>{{ document.received_from }}</td>
                   <td>{{ document.rcv_date }}</td>
                   <td>{{ document.fwd_to }}</td>
