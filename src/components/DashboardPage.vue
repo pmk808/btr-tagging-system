@@ -322,39 +322,51 @@ async function generateReport() {
     ];
 
     // Convert data to Excel format with custom column headers and styles
-    const generateWorksheet = (data) => {
-      const worksheet = XLSX.utils.json_to_sheet(data.map(doc => {
-        return {
-          'Document Code': doc.document_code,
-          'Document Type': doc.document_type,
-          'Document Title': doc.document_title,
-          'Action Needed': doc.actions,
-          'Agency/Source': doc.agency,
-          'Received By/from': doc.received_from,
-          'Date Received': doc.rcv_date,
-          'Forwarded To:': doc.fwd_to,
-          'Date': doc.fwd_date,
-          'Status': doc.status
-        };
-      }), { header: headers });
-
-      // Set column widths
-      const colWidths = [{ wch: 20 }, { wch: 20 }, { wch: 40 }, { wch: 30 }, { wch: 30 }, { wch: 30 }, { wch: 15 }, { wch: 30 }, { wch: 15 }, { wch: 15 }];
-      worksheet['!cols'] = colWidths;
-
-      // Apply font and size to each cell
-      for (let rowIndex = 2; rowIndex <= incomingData.length + 1; rowIndex++) {
-        for (let colIndex = 0; colIndex < headers.length; colIndex++) {
-          const cellAddress = XLSX.utils.encode_cell({ r: rowIndex, c: colIndex });
-          if (!worksheet[cellAddress]) {
-            worksheet[cellAddress] = { t: 's', v: '' }; // Initialize cell if it doesn't exist
-          }
-          worksheet[cellAddress].s = { font: { name: 'Arial', sz: 14 } }; // Set font and size
-        }
-      }
-
-      return worksheet;
+const generateWorksheet = (data) => {
+  const worksheet = XLSX.utils.json_to_sheet(data.map(doc => {
+    return {
+      'Document Code': doc.document_code,
+      'Document Type': doc.document_type,
+      'Document Title': doc.document_title,
+      'Action Needed': doc.actions,
+      'Agency/Source': doc.agency,
+      'Received By/from': doc.received_from,
+      'Date Received': doc.rcv_date,
+      'Forwarded To:': doc.fwd_to,
+      'Date': doc.fwd_date,
+      'Status': doc.status
     };
+  }), { header: headers });
+
+  // Set column widths
+  const colWidths = [{ wch: 20 }, { wch: 20 }, { wch: 40 }, { wch: 30 }, { wch: 30 }, { wch: 30 }, { wch: 15 }, { wch: 30 }, { wch: 15 }, { wch: 15 }];
+  worksheet['!cols'] = colWidths;
+
+  // Increase font size for all cells
+  for (let rowIndex = 2; rowIndex <= incomingData.length + 1; rowIndex++) {
+    for (let colIndex = 0; colIndex < headers.length; colIndex++) {
+      const cellAddress = XLSX.utils.encode_cell({ r: rowIndex, c: colIndex });
+      const cell = worksheet[cellAddress];
+      if (cell) {
+        if (!cell.s) cell.s = {};
+        cell.s.sz = 14; // Set font size to 14
+      }
+    }
+  }
+
+  // Make headers bold
+  const headerRange = XLSX.utils.decode_range(worksheet['!ref']);
+  for (let colIndex = headerRange.s.c; colIndex <= headerRange.e.c; colIndex++) {
+    const cellAddress = XLSX.utils.encode_cell({ r: 0, c: colIndex });
+    const cell = worksheet[cellAddress];
+    if (cell) {
+      if (!cell.s) cell.s = {};
+      cell.s.font = { bold: true };
+    }
+  }
+
+  return worksheet;
+};
 
     // Add worksheets to the workbook
     XLSX.utils.book_append_sheet(workbook, generateWorksheet(roxiIncomingData), "ROXI-INC");
@@ -640,7 +652,6 @@ function filterTable() {
   align-items: flex-start;
   padding: 15px;
   margin-top: 200px;
-  transition: width 500ms;
 }
 
 .HeaderComponent {
@@ -667,7 +678,7 @@ function filterTable() {
 }
 
 
-.main-wrapper.sidebar-collapsed {
+.main-wrapper.sidebar-collapsed .main-content {
   margin-left: 0;
   width: 100%;
 }
