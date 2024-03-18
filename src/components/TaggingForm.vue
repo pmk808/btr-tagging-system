@@ -144,9 +144,30 @@ const generateDocumentCode = () => {
   transactionNumber++; 
   const paddedTransactionNumber = transactionNumber.toString().padStart(3, '0');
 
-  return defaultPrefix + 'R' + year + '-' + month + '-' + paddedTransactionNumber;
+  let prefix = ''; // Initialize prefix variable
 
+  // Determine prefix based on selected department
+  switch (department.value) {
+    case 'Accounting':
+      prefix = 'A';
+      break;
+    case 'Provincial':
+      prefix = 'P';
+      break;
+    case 'Admin':
+      prefix = 'R';
+      break;
+    case 'RDoffice':
+      prefix = 'RD';
+      break;
+    default:
+      prefix = ''; // Handle default case if needed
+      break;
+  }
+
+  return defaultPrefix + prefix + year + '-' + month + '-' + paddedTransactionNumber;
 };
+
 
 const updateDocumentCode = async () => {
   const latestCode = await fetchLatestDocumentCode(); 
