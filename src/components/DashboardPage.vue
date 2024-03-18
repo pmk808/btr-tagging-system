@@ -663,7 +663,6 @@ function filterTable() {
   align-items: flex-start;
   padding: 15px;
   margin-top: 200px;
-  transition: width 500ms;
 }
 
 .HeaderComponent {
@@ -690,7 +689,7 @@ function filterTable() {
 }
 
 
-.main-wrapper.sidebar-collapsed {
+.main-wrapper.sidebar-collapsed .main-content {
   margin-left: 0;
   width: 100%;
 }

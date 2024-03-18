@@ -5,12 +5,12 @@
       <div class="main-content">
         <div class="reports-content">
           <div class="chart-container">
-            <h3>Bar Chart</h3>
-            <canvas id="barChart"></canvas>
-          </div>
+            <h2>Bar Chart</h2>
+            <canvas id="barChart" width="600" height="300"></canvas>
+          </div>&nbsp;
           <div class="chart-container">
-            <h3>Pie Chart</h3>
-            <canvas id="pieChart"></canvas>
+            <h2>Pie Chart</h2>
+            <canvas id="pieChart" width="300" height="300"></canvas>
           </div>
         </div>
       </div>
