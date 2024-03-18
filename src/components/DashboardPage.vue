@@ -305,8 +305,6 @@ async function generateReport() {
     const roxiOutgoingData = outgoingData.filter(doc => doc.office === 'Admin');
     const poxiOutgoingData = outgoingData.filter(doc => doc.office === 'Provincial');
 
-    
-
     // Define custom column headers
     const headers = [
       'Document Code',
@@ -321,72 +319,46 @@ async function generateReport() {
       'Status'
     ];
 
-    // Convert data to Excel format with custom column headers
-    const roxiIncomingWorksheet = XLSX.utils.json_to_sheet(roxiIncomingData.map(doc => {
-      return {
-        'Document Code': doc.document_code,
-        'Document Type': doc.document_type,
-        'Document Title': doc.document_title,
-        'Action Needed': doc.actions,
-        'Agency/Source': doc.agency,
-        'Received By/from': doc.received_from,
-        'Date Received': doc.rcv_date,
-        'Forwarded To:': doc.fwd_to,
-        'Date': doc.fwd_date,
-        'Status': doc.status
-      };
-    }), { header: headers });
+    // Convert data to Excel format with custom column headers and styles
+    const generateWorksheet = (data) => {
+      const worksheet = XLSX.utils.json_to_sheet(data.map(doc => {
+        return {
+          'Document Code': doc.document_code,
+          'Document Type': doc.document_type,
+          'Document Title': doc.document_title,
+          'Action Needed': doc.actions,
+          'Agency/Source': doc.agency,
+          'Received By/from': doc.received_from,
+          'Date Received': doc.rcv_date,
+          'Forwarded To:': doc.fwd_to,
+          'Date': doc.fwd_date,
+          'Status': doc.status
+        };
+      }), { header: headers });
 
-    const poxiIncomingWorksheet = XLSX.utils.json_to_sheet(poxiIncomingData.map(doc => {
-      return {
-        'Document Code': doc.document_code,
-        'Document Type': doc.document_type,
-        'Document Title': doc.document_title,
-        'Action Needed': doc.actions,
-        'Agency/Source': doc.agency,
-        'Received By/from': doc.received_from,
-        'Date Received': doc.rcv_date,
-        'Forwarded To:': doc.fwd_to,
-        'Date': doc.fwd_date,
-        'Status': doc.status
-      };
-    }), { header: headers });
+      // Set column widths
+      const colWidths = [{ wch: 20 }, { wch: 20 }, { wch: 40 }, { wch: 30 }, { wch: 30 }, { wch: 30 }, { wch: 15 }, { wch: 30 }, { wch: 15 }, { wch: 15 }];
+      worksheet['!cols'] = colWidths;
 
-    const roxiOutgoingWorksheet = XLSX.utils.json_to_sheet(roxiOutgoingData.map(doc => {
-      return {
-        'Document Code': doc.document_code,
-        'Document Type': doc.document_type,
-        'Document Title': doc.document_title,
-        'Action Needed': doc.actions,
-        'Agency/Source': doc.agency,
-        'Received By/from': doc.received_from,
-        'Date Received': doc.rcv_date,
-        'Forwarded To:': doc.fwd_to,
-        'Date': doc.fwd_date,
-        'Status': doc.status
-      };
-    }), { header: headers });
+      // Apply font and size to each cell
+      for (let rowIndex = 2; rowIndex <= incomingData.length + 1; rowIndex++) {
+        for (let colIndex = 0; colIndex < headers.length; colIndex++) {
+          const cellAddress = XLSX.utils.encode_cell({ r: rowIndex, c: colIndex });
+          if (!worksheet[cellAddress]) {
+            worksheet[cellAddress] = { t: 's', v: '' }; // Initialize cell if it doesn't exist
+          }
+          worksheet[cellAddress].s = { font: { name: 'Arial', sz: 14 } }; // Set font and size
+        }
+      }
 
-    const poxiOutgoingWorksheet = XLSX.utils.json_to_sheet(poxiOutgoingData.map(doc => {
-      return {
-        'Document Code': doc.document_code,
-        'Document Type': doc.document_type,
-        'Document Title': doc.document_title,
-        'Action Needed': doc.actions,
-        'Agency/Source': doc.agency,
-        'Received By/from': doc.received_from,
-        'Date Received': doc.rcv_date,
-        'Forwarded To:': doc.fwd_to,
-        'Date': doc.fwd_date,
-        'Status': doc.status
-      };
-    }), { header: headers });
+      return worksheet;
+    };
 
     // Add worksheets to the workbook
-    XLSX.utils.book_append_sheet(workbook, roxiIncomingWorksheet, "ROXI-INC");
-    XLSX.utils.book_append_sheet(workbook, poxiIncomingWorksheet, "POXI-INC");
-    XLSX.utils.book_append_sheet(workbook, roxiOutgoingWorksheet, "ROXI-OUTG");
-    XLSX.utils.book_append_sheet(workbook, poxiOutgoingWorksheet, "POXI-OUTG");
+    XLSX.utils.book_append_sheet(workbook, generateWorksheet(roxiIncomingData), "ROXI-INC");
+    XLSX.utils.book_append_sheet(workbook, generateWorksheet(poxiIncomingData), "POXI-INC");
+    XLSX.utils.book_append_sheet(workbook, generateWorksheet(roxiOutgoingData), "ROXI-OUTG");
+    XLSX.utils.book_append_sheet(workbook, generateWorksheet(poxiOutgoingData), "POXI-OUTG");
 
     // Initiate download
     XLSX.writeFile(workbook, "document_report.xlsx");
