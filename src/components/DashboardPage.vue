@@ -71,14 +71,14 @@
                         {{ document.status }}
                       </div>
                     </td>
+                    <template v-if="isAdmin">
                     <td>
-                      <template v-if="isAdmin">
                         <font-awesome-icon :icon="['fas', 'edit']" @click="openEditModal(document)"
                           class="action-icon" />
                         <font-awesome-icon :icon="['fas', 'trash-alt']" @click="confirmDelete(document)"
                           class="action-icon" />
-                      </template>
                     </td>
+                  </template>
                   </tr>
                 </template>
                 <template v-else>
