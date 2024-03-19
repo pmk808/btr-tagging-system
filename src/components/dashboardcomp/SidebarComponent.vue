@@ -1,32 +1,45 @@
 <template>
-  <!-- Sidebar -->
   <div :class="['sidebar', { 'collapsed': !sidebarVisible }]">
     <span class="toggle-btn" @click="toggleSidebar">
       <font-awesome-icon :icon="sidebarVisible ? ['fas', 'bars'] : ['fas', 'angles-right']" />
     </span>
-    <h3>Welcome</h3>
+    <h3 class="h3">Welcome</h3>
     <ul>
       <li :class="{ 'active': $route.path === '/dashboard' }"><router-link to="/dashboard">
-          <span class="icons">
-            <font-awesome-icon :icon="['fas', 'house']" /></span>Dashboard</router-link></li>
-      <!-- Conditionally render the "Tagging" tab -->
-      <template v-if="isAdmin">
-        <li :class="{ 'active': $route.path === '/tagging' }"><router-link to="/tagging">
-            <span class="icons"><font-awesome-icon :icon="['fas', 'tags']" /></span>Tagging
-          </router-link></li>
+        <div class="tab"><span class="icons">
+          <font-awesome-icon :icon="['fas', 'house']" /></span>Dashboard</div></router-link></li>
+
+      <template v-if="isAdmin"> 
+        <li v-if="loading" :class="{ 'active': $route.path === '/tagging' }">
+          <router-link to="/tagging">
+            <div class="tab">
+              <span class="icons"><font-awesome-icon :icon="['fas', 'tags']" /></span>
+              Tagging <font-awesome-icon :icon="['fas', 'spinner', 'fa-spin']"/> 
+            </div>
+          </router-link>
+        </li>
+        <li v-else :class="{ 'active': $route.path === '/tagging' }">
+         <router-link to="/tagging">
+           <div class="tab">
+             <span class="icons"><font-awesome-icon :icon="['fas', 'tags']" /></span>Tagging 
+           </div>
+         </router-link>
+       </li>
       </template>
-      <!-- End of conditional rendering -->
       <li :class="{ 'active': $route.path === '/reports' }"><router-link to="/reports">
-          <span class="icons">
-            <font-awesome-icon :icon="['fas', 'chart-area']" /></span>Reports</router-link></li>
+        <div class="tab"><span class="icons">
+          <font-awesome-icon :icon="['fas', 'chart-area']" /></span>Reports</div></router-link></li>
     </ul>
+    <div class="logout">
     <ul>
       <li :class="{ 'active': $route.path === '/' }"><router-link to="/" @click="logout">
-          <span class="icons">
-            <font-awesome-icon :icon="['fas', 'right-from-bracket']" /></span>Logout</router-link></li>
+        <div class="tab" style="width: 150px;"><span class="icons">
+          <font-awesome-icon :icon="['fas', 'right-from-bracket']" /></span>Logout</div></router-link></li>
     </ul>
+    </div>
   </div>
 </template>
+
 
 <script setup>
 import '@fortawesome/fontawesome-free/js/all.js';
@@ -39,6 +52,7 @@ import { supabase } from '../../supabaseconfig.js'; // Assuming you have a file 
 const router = useRouter();
 const sidebarVisible = ref(true);
 const isAdmin = ref(false); // Initialize isAdmin as false by default
+const loading = ref(false); // Initialize loading state
 
 const toggleSidebar = () => {
   sidebarVisible.value = !sidebarVisible.value;
@@ -52,6 +66,9 @@ const logout = () => {
 };
 
 const fetchUserData = async () => {
+  // Set loading state to true while fetching user data
+  loading.value = true;
+
   // Fetch token from localStorage
   const token = localStorage.getItem('sb-yszwlktldjrohxuneyop-auth-token');
 
@@ -83,6 +100,9 @@ const fetchUserData = async () => {
       isAdmin.value = userData?.isAdmin ?? false;
     } catch (error) {
       console.error('Error fetching user data:', error.message);
+    } finally {
+      // Set loading state to false after fetching user data
+      loading.value = false;
     }
   } else {
     console.error('Email is missing from token.');
@@ -108,8 +128,6 @@ const fetchUserDataFromDatabase = async (email) => {
     return { dbError: error };
   }
 };
-
-
 
 // Fetch user data when the component is mounted
 onMounted(fetchUserData);
@@ -146,12 +164,13 @@ onMounted(fetchUserData);
 }
 
 .icons {
+  padding-bottom: 1px;
   padding-right: 10px;
   padding-left: 15px;
   white-space: nowrap;
   display: inline-block;
   overflow: hidden;
-  text-overflow: ellipsis;
+  
 }
 
 .sidebar ul {
@@ -202,5 +221,20 @@ onMounted(fetchUserData);
 
 .toggle-btn:hover {
   cursor: pointer;
+}
+
+.tab {
+  display: flex; /* Activate flexbox layout */
+  align-items: center; /* Vertically align icons and text to the center */
+  gap: 10px;  /* Add a 10px gap between the icon and text */
+}
+
+.h3{
+  overflow: hidden;
+}
+
+.logout {
+  position: absolute;
+  bottom: 20px;
 }
 </style>
