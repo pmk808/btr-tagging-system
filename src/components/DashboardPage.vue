@@ -46,42 +46,46 @@
                   <th>Forwarded To:</th>
                   <th>Date</th>
                   <th>Status</th>
-                  <th>Edit</th>
+                  <template v-if="isAdmin">
+                    <th>Edit</th>
+                  </template>
                 </tr>
               </thead>
               <tbody v-if="!loading">
 
                 <template v-if="documentList.length > 0">
-                <tr v-for="document in documentList" :key="document.id" 
-      :class="{ 'edited-row': document.id === editedRowId, 'highlighted-row': document.id === deletedRowId }">
-                  <td>{{ document.document_code }}</td>
-                  <td>{{ document.document_type }}</td>
-                  <td>{{ document.document_title }}</td>
-                  <td>{{ document.actions }}</td>
-                  <td>{{ document.agency }}</td>
-                  <td>{{ document.office }}</td>
-                  <td>{{ document.received_from }}</td>
-                  <td>{{ document.rcv_date }}</td>
-                  <td>{{ document.fwd_to }}</td>
-                  <td>{{ document.fwd_date }}</td>
-                  <td>
-                    <div :class="getStatusClass(document.status, document.in_out)">
-  {{ document.status }}
-</div>
-                  </td>
-                  <td>
-                    <font-awesome-icon :icon="['fas', 'edit']" @click="openEditModal(document)" class="action-icon" />
-
-                    <font-awesome-icon :icon="['fas', 'trash-alt']" @click="confirmDelete(document)"
-                      class="action-icon" />
-                  </td>
-                </tr>
-              </template>
-              <template v-else>
-          <tr>
-            <td colspan="11" class="no-data-found">No data found</td>
-          </tr>
-        </template>
+                  <tr v-for="document in documentList" :key="document.id"
+                    :class="{ 'edited-row': document.id === editedRowId, 'highlighted-row': document.id === deletedRowId }">
+                    <td>{{ document.document_code }}</td>
+                    <td>{{ document.document_type }}</td>
+                    <td>{{ document.document_title }}</td>
+                    <td>{{ document.actions }}</td>
+                    <td>{{ document.agency }}</td>
+                    <td>{{ document.office }}</td>
+                    <td>{{ document.received_from }}</td>
+                    <td>{{ document.rcv_date }}</td>
+                    <td>{{ document.fwd_to }}</td>
+                    <td>{{ document.fwd_date }}</td>
+                    <td>
+                      <div :class="getStatusClass(document.status, document.in_out)">
+                        {{ document.status }}
+                      </div>
+                    </td>
+                    <td>
+                      <template v-if="isAdmin">
+                        <font-awesome-icon :icon="['fas', 'edit']" @click="openEditModal(document)"
+                          class="action-icon" />
+                        <font-awesome-icon :icon="['fas', 'trash-alt']" @click="confirmDelete(document)"
+                          class="action-icon" />
+                      </template>
+                    </td>
+                  </tr>
+                </template>
+                <template v-else>
+                  <tr>
+                    <td colspan="11" class="no-data-found">No data found</td>
+                  </tr>
+                </template>
               </tbody>
               <tbody v-if="loading">
                 <tr>
@@ -116,22 +120,23 @@
               <div class="form-group">
                 <label for="documentType">Document Type:</label>
                 <input type="text" id="documentType" v-model="editedDocument.document_type" required>
-                </div>
-                <div class="form-group">
+              </div>
+              <div class="form-group">
                 <label for="actionsNeeded">Actions Needed:</label>
                 <input type="text" id="actionsNeeded" v-model="editedDocument.actions" required>
               </div>
             </div>
             <div class="title-group">
               <label for="documentTitle">Document Title:</label>
-              <textarea id="documentTitle" v-model="editedDocument.document_title" row="6" style="resize: none;" required></textarea>
+              <textarea id="documentTitle" v-model="editedDocument.document_title" row="6" style="resize: none;"
+                required></textarea>
             </div>
             <div class="form-row">
               <div class="form-group">
                 <label for="agencySource">Agency/Source:</label>
                 <input type="text" id="agencySource" v-model="editedDocument.agency" required>
-                </div>
-                <div class="form-group">
+              </div>
+              <div class="form-group">
                 <label for="receivedBy">Received By/From:</label>
                 <input type="text" id="receivedBy" v-model="editedDocument.received_from" required>
               </div>
@@ -144,7 +149,7 @@
               </div>
               <div class="form-group">
                 <label for="forward">Forward Date:</label>
-<input type="date" id="forward" v-model="editedDocument.fwd_date" @change="updateStatus" required>
+                <input type="date" id="forward" v-model="editedDocument.fwd_date" @change="updateStatus" required>
               </div>
             </div>
             <div class="form-row">
@@ -157,26 +162,26 @@
                   <option value="Admin">Admin Office</option>
                   <option value="RDoffice">RD Office</option>
                 </select>
-                </div>
-                <div class="form-group">
-              <label for="status">Status:</label>
-              <select id="status" v-model="editedDocument.status" required>
-  <template v-if="editedDocument.in_out === 'Incoming'">
-    <option value="Forwarded">Forwarded</option>
-    <option value="Pending">Pending</option>
-  </template>
-  <template v-else-if="editedDocument.in_out === 'Outgoing'">
-    <option value="Released">Released</option>
-    <option value="Pending">Pending</option>
-  </template>
-  <template v-else>
-    <!-- Default options -->
-    <option value="">Select Status</option>
-  </template>
-</select>
+              </div>
+              <div class="form-group">
+                <label for="status">Status:</label>
+                <select id="status" v-model="editedDocument.status" required>
+                  <template v-if="editedDocument.in_out === 'Incoming'">
+                    <option value="Forwarded">Forwarded</option>
+                    <option value="Pending">Pending</option>
+                  </template>
+                  <template v-else-if="editedDocument.in_out === 'Outgoing'">
+                    <option value="Released">Released</option>
+                    <option value="Pending">Pending</option>
+                  </template>
+                  <template v-else>
+                    <!-- Default options -->
+                    <option value="">Select Status</option>
+                  </template>
+                </select>
+              </div>
             </div>
-            </div>
-            
+
             <div class="button-container">
               <button type="submit" class="modal-button">Save</button>
               <button class="close modal-button cancel-button" @click="closeEditModal">Cancel</button>
@@ -207,7 +212,7 @@ const loading = ref(false);
 const currentPage = ref(1);
 const itemsPerPage = ref(10);
 const searchQuery = ref('');
-
+const isAdmin = ref(false);
 const deletedRowId = ref(null);
 const editedRowId = ref(null);
 
@@ -309,7 +314,7 @@ async function generateReport() {
       'Received By/from',
       'Date Received',
       'Forwarded To:',
-      'Date',  
+      'Date',
     ];
 
     // Function to add table to PDF
@@ -319,7 +324,7 @@ async function generateReport() {
           // Add a new page
           doc.addPage('landscape');
         }
-        
+
         // Add bold title for the section
         doc.setFont('helvetica', 'bold');
         doc.setFontSize(12);
@@ -564,7 +569,66 @@ function filterTable() {
   fetchDocuments();
 }
 
+const fetchUserData = async () => {
+  // Fetch token from localStorage
+  const token = localStorage.getItem('sb-yszwlktldjrohxuneyop-auth-token');
 
+  // Function to extract the email from the access token
+  const extractEmailFromToken = (token) => {
+    try {
+      // Parse the token as JSON
+      const tokenData = JSON.parse(token);
+      // Extract the email from the user object
+      const email = tokenData?.user?.email;
+      return email;
+    } catch (error) {
+      console.error('Error extracting email from token:', error.message);
+      return null;
+    }
+  };
+
+  const email = extractEmailFromToken(token);
+
+  if (email) {
+    try {
+      // Fetch user data from your database based on the email
+      const { userData, dbError } = await fetchUserDataFromDatabase(email);
+      if (dbError) {
+        throw dbError;
+      }
+      
+      // Check if user is admin
+      isAdmin.value = userData?.isAdmin ?? false;
+    } catch (error) {
+      console.error('Error fetching user data:', error.message);
+    }
+  } else {
+    console.error('Email is missing from token.');
+  }
+};
+
+const fetchUserDataFromDatabase = async (email) => {
+  try {
+    // Make a request to Supabase to fetch user data based on the email
+    const { data: userData, error } = await supabase
+      .from('users')
+      .select('isAdmin')
+      .eq('email', email)
+      .single();
+      
+    if (error) {
+      throw error;
+    }
+
+    return { userData };
+  } catch (error) {
+    console.error('Error fetching user data from database:', error.message);
+    return { dbError: error };
+  }
+};
+
+// Fetch user data when the component is mounted
+onMounted(fetchUserData);
 </script>
 
 <style scoped>
@@ -867,8 +931,9 @@ function filterTable() {
   margin: 15% auto;
   padding: 15px;
   border: 1px solid #888;
-  width: 80%; /* Adjust width as needed */
-  margin-left:17%;
+  width: 80%;
+  /* Adjust width as needed */
+  margin-left: 17%;
   height: -100vh;
 }
 
@@ -877,7 +942,8 @@ function filterTable() {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 10px; /* Increase margin bottom */
+  margin-bottom: 10px;
+  /* Increase margin bottom */
 }
 
 .modal-header h2 {
@@ -903,7 +969,8 @@ function filterTable() {
   border: 1px solid #ccc;
   border-radius: 4px;
   font-family: 'Poppins', sans-serif;
-  font-size: 12px; /* Match font size with other form fields */
+  font-size: 12px;
+  /* Match font size with other form fields */
 }
 
 /* Modal Footer */
@@ -917,9 +984,11 @@ function filterTable() {
   color: #fff;
   border: none;
   border-radius: 4px;
-  padding: 8px 16px; /* Adjust padding */
+  padding: 8px 16px;
+  /* Adjust padding */
   cursor: pointer;
-  margin-right: 10px; /* Add margin right */
+  margin-right: 10px;
+  /* Add margin right */
 }
 
 .modal-body button:hover {

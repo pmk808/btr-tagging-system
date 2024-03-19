@@ -109,8 +109,6 @@ const fetchUserDataFromDatabase = async (email) => {
   }
 };
 
-
-
 // Fetch user data when the component is mounted
 onMounted(fetchUserData);
 </script>
