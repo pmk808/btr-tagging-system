@@ -258,7 +258,7 @@ async function fetchDocuments() {
 
     // Apply filters if any selected
     if (selectedFilters.value.length > 0 && !selectedFilters.value.includes('')) {
-      query = query.in('office', selectedFilters.value);
+      query = query.in('in_out', selectedFilters.value);
     }
 
     // Apply search query if present
@@ -387,18 +387,22 @@ async function generateReport() {
       }
     };
 
-    // Add tables for each section with titles
-    let isFirstTable = true;
-    addTable(data.filter(doc => doc.in_out === 'Incoming' && doc.office === 'Admin'), 'Regional - Incoming', isFirstTable);
-    isFirstTable = false;
-    addTable(data.filter(doc => doc.in_out === 'Outgoing' && doc.office === 'Admin'), 'Regional - Outgoing', isFirstTable);
-    addTable(data.filter(doc => doc.in_out === 'Incoming' && doc.office === 'Provincial'), 'Provincial - Incoming', isFirstTable);
-    addTable(data.filter(doc => doc.in_out === 'Outgoing' && doc.office === 'Provincial'), 'Provincial - Outgoing', isFirstTable);
-    addTable(data.filter(doc => doc.in_out === 'Incoming' && doc.office === 'RDoffice'), 'RD - Incoming', isFirstTable);
-    addTable(data.filter(doc => doc.in_out === 'Outgoing' && doc.office === 'RDoffice'), 'RD - Outgoing', isFirstTable);
-    addTable(data.filter(doc => doc.in_out === 'Incoming' && doc.office === 'Accounting'), 'Accounting - Incoming', isFirstTable);
-    addTable(data.filter(doc => doc.in_out === 'Outgoing' && doc.office === 'Accounting'), 'Accounting - Outgoing', isFirstTable);
+    // Group data by section titles
+    const groupedData = {};
+    data.forEach(doc => {
+      const sectionTitle = getSectionTitle(doc);
+      if (!groupedData[sectionTitle]) {
+        groupedData[sectionTitle] = [];
+      }
+      groupedData[sectionTitle].push(doc);
+    });
 
+    // Add tables for each section
+    let isFirstTable = true;
+    for (const title in groupedData) {
+      addTable(groupedData[title], title, isFirstTable);
+      isFirstTable = false;
+    }
 
     // Save the PDF
     doc.save('document_report.pdf');
@@ -406,6 +410,22 @@ async function generateReport() {
     console.error('Error generating report:', error.message);
   } finally {
     loading.value = false; // Reset loading after fetching data or encountering an error
+  }
+}
+
+// Helper function to get section title based on doc.office
+function getSectionTitle(doc) {
+  switch (true) {
+    case doc.office === 'RDoffice':
+      return `Regional Director - ${doc.in_out === 'Incoming' ? 'Incoming' : 'Outgoing'}`;
+    case doc.office.startsWith('R'):
+      return `Regional - ${doc.in_out === 'Incoming' ? 'Incoming' : 'Outgoing'}`;
+    case doc.office.startsWith('P'):
+      return `Provincial - ${doc.in_out === 'Incoming' ? 'Incoming' : 'Outgoing'}`;
+    case doc.office === 'others':
+      return `Regional - ${doc.in_out === 'Incoming' ? 'Incoming' : 'Outgoing'}`;
+    default:
+      return `Regional - ${doc.in_out === 'Incoming' ? 'Incoming' : 'Outgoing'}`;
   }
 }
 
@@ -559,10 +579,8 @@ async function deleteDocument(document) {
 }
 
 const filterOptions = [
-  { value: 'Admin', label: 'Admin/Regional Office' },
-  { value: 'Provincial', label: 'Provincial Office' },
-  { value: 'Accounting', label: 'Accounting Office' },
-  { value: 'RDoffice', label: 'RD Office' },
+{ value: 'Incoming', label: 'Incoming' },
+  { value: 'Outgoing', label: 'Outgoing' },
   { value: '', label: 'All' },
 ];
 

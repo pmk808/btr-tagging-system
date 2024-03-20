@@ -154,22 +154,24 @@ const generateDocumentCode = () => {
   let prefix = ''; // Initialize prefix variable
 
   // Determine prefix based on selected department
-  switch (department.value) {
-    case 'Accounting':
-      prefix = 'A';
-      break;
-    case 'Provincial':
-      prefix = 'P';
-      break;
-    case 'Admin':
-      prefix = 'R';
-      break;
-    case 'RDoffice':
+  switch (true) {
+  case department.value.startsWith('R'):
+    if (department.value === 'RDoffice') {
       prefix = 'RD';
-      break;
-    default:
-      prefix = ''; // Handle default case if needed
-      break;
+    } else {
+      prefix = 'R';
+    }
+    break;
+  case department.value.startsWith('P'):
+    prefix = 'P';
+    break;
+  case department.value === 'others':
+    prefix = 'R'; // Assuming you want 'R' for 'others'
+    break;
+  default:
+    prefix = ''; // Handle default case if needed
+    break;
+
   }
 
   return defaultPrefix + prefix + year + '-' + month + '-' + paddedTransactionNumber;
