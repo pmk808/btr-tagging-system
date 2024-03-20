@@ -51,10 +51,17 @@
           <label for="department">Office: &nbsp;</label>
           <select v-model="department" required>
             <option disabled value="">Select Department</option>
-            <option value="Accounting">Accounting Office</option>
-            <option value="Provincial">Provincial Office</option>
-            <option value="Admin">Admin Office</option>
-            <option value="RDoffice">RD Office</option>
+            <option value="Raccounting">Admin - Accounting</option>
+            <optiion value="Ragbs">Admin - AGBs</optiion>
+            <option value="Rbudget">Admin - Budget</option>
+            <option value="Rcashier">Admin - Cashier</option>
+            <option value="Rcentral">Admin - Central</option>
+            <option value="Roperations">Admin - Operations</option>
+            <option value="RDoffice">RD/Staff Office</option>
+            <option value="Pdds">Provincial - DDS</option>
+            <option value="Pmati">Provincial - Mati</option>
+            <option value="Ptagum">Provincial - Tagum</option>
+            <option value="others">Other Agency</option>
           </select>
         </div>
         <div class="form-group">
