@@ -249,7 +249,7 @@ async function fetchDocuments() {
 
     // Apply filters if any selected
     if (selectedFilters.value.length > 0 && !selectedFilters.value.includes('')) {
-      query = query.in('in_out', selectedFilters.value);
+      query = query.in('office', selectedFilters.value);
     }
 
     // Apply search query if present
@@ -550,8 +550,10 @@ async function deleteDocument(document) {
 }
 
 const filterOptions = [
-  { value: 'Incoming', label: 'Incoming' },
-  { value: 'Outgoing', label: 'Outgoing' },
+  { value: 'Admin', label: 'Admin/Regional Office' },
+  { value: 'Provincial', label: 'Provincial Office' },
+  { value: 'Accounting', label: 'Accounting Office' },
+  { value: 'RDoffice', label: 'RD Office' },
   { value: '', label: 'All' },
 ];
 
