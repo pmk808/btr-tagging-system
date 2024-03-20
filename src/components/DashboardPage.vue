@@ -40,11 +40,12 @@
                   <th>Document Title</th>
                   <th>Action Needed</th>
                   <th>Agency/Source</th>
-                  <th>Office</th>
                   <th>Received From/By</th>
                   <th>Date Received</th>
                   <th>Forwarded To:</th>
                   <th>Date</th>
+                  <th>Office</th>
+                  <th>In/Out</th>
                   <th>Status</th>
                   <template v-if="isAdmin">
                     <th>Edit</th>
@@ -61,11 +62,12 @@
                     <td>{{ document.document_title }}</td>
                     <td>{{ document.actions }}</td>
                     <td>{{ document.agency }}</td>
-                    <td>{{ document.office }}</td>
                     <td>{{ document.received_from }}</td>
                     <td>{{ document.rcv_date }}</td>
                     <td>{{ document.fwd_to }}</td>
                     <td>{{ document.fwd_date }}</td>
+                    <td>{{ document.office }}</td>
+                    <td>{{ document.in_out }}</td>
                     <td>
                       <div :class="getStatusClass(document.status, document.in_out)">
                         {{ document.status }}
