@@ -4,19 +4,45 @@
     <SidebarComponent :sidebar-visible="sidebarVisible" @toggle-sidebar="toggleSidebar" />
     <div class="main-content">
       <div class="reports-content">
-        <div class="chart-container">
-          <h2>Bar Chart</h2>
-          <canvas ref="barChartCanvas" width="600" height="300"></canvas>
-        </div>&nbsp;
-        <div class="chart-container">
-          <h2>Pie Chart</h2>
-          <canvas ref="pieChartCanvas" width="300" height="300"></canvas>
+        <div class="charts-container">
+          <div class="bar-chart-container">
+            <div class="chart-container">
+              <h2>Regional Bar Chart</h2>
+              <canvas ref="regionalBarChartCanvas" width="500" height="250"></canvas>
+            </div>
+            <div class="chart-container">
+              <h2>Provincial Bar Chart</h2>
+              <canvas ref="provincialBarChartCanvas" width="500" height="250"></canvas>
+            </div>
+          </div>
+          &nbsp;
+          &nbsp;
+          &nbsp;
+          &nbsp;
+          &nbsp;
+          &nbsp;
+          &nbsp;
+          &nbsp;
+          &nbsp;
+          &nbsp;
+          &nbsp;
+          &nbsp;
+          &nbsp;
+          &nbsp;
+          &nbsp;
+          <div class="chart-container pie-chart-container">
+            <h2>Pie Chart</h2>
+            <canvas ref="pieChartCanvas" width="450" height="300"></canvas>
+          </div>
         </div>
       </div>
     </div>
     <FooterComponent />
   </div>
 </template>
+
+
+
 
 <script setup>
 import HeaderComponent from '../components/dashboardcomp/HeaderComponent.vue';
@@ -29,7 +55,8 @@ import { supabase } from '../supabaseconfig.js';
 Chart.register(...registerables);
 
 const sidebarVisible = ref(true);
-const barChartCanvas = ref(null);
+const regionalBarChartCanvas = ref(null);
+const provincialBarChartCanvas = ref(null);
 const pieChartCanvas = ref(null);
 
 function toggleSidebar() {
@@ -37,16 +64,24 @@ function toggleSidebar() {
 }
 
 const chartData = ref({
-  barChartData: {
+  regionalBarChartData: {
     labels: [],
     datasets: [{
-      label: 'Transaction Counts',
+      label: 'Regional Transaction Counts',
       data: [],
-      backgroundColor: [] // Changed to an empty array
+      backgroundColor: []
+    }]
+  },
+  provincialBarChartData: {
+    labels: [],
+    datasets: [{
+      label: 'Provincial Transaction Counts',
+      data: [],
+      backgroundColor: []
     }]
   },
   pieChartData: {
-    labels: ['Incoming', 'Outgoing'], // Set default labels
+    labels: ['Incoming', 'Outgoing'],
     datasets: [{
       data: [],
       backgroundColor: []
@@ -60,31 +95,51 @@ onMounted(async () => {
 });
 
 async function fetchData() {
-  // Fetch data for bar chart
-  const { data: barData, error: barError } = await supabase
+  const { data, error } = await supabase
     .from('taggingForm')
     .select('office');
 
-  if (barError) {
-    console.error('Error fetching bar chart data:', barError.message);
+  if (error) {
+    console.error('Error fetching data:', error.message);
     return;
   }
 
-  const officeCounts = {};
+  const regionalOfficeCounts = {};
+  const provincialOfficeCounts = {};
+  let othersCount = 0;
 
-  // Count occurrences of each office
-  barData.forEach(item => {
+  data.forEach(item => {
     const office = item.office;
-    officeCounts[office] = (officeCounts[office] || 0) + 1;
+    if (office.startsWith('R') || office === 'RDoffice') {
+      regionalOfficeCounts[office] = (regionalOfficeCounts[office] || 0) + 1;
+    } else if (office.startsWith('P')) {
+      provincialOfficeCounts[office] = (provincialOfficeCounts[office] || 0) + 1;
+    } else {
+      othersCount++;
+    }
   });
 
-  // Extract office names and counts for bar chart data
-  chartData.value.barChartData.labels = Object.keys(officeCounts);
-  chartData.value.barChartData.datasets[0].data = Object.values(officeCounts);
+  // Extract regional office names and counts for bar chart data
+  chartData.value.regionalBarChartData.labels = Object.keys(regionalOfficeCounts);
+  chartData.value.regionalBarChartData.datasets[0].data = Object.values(regionalOfficeCounts);
 
-  // Generate random colors for each bar
-  const randomColors = Array.from({ length: chartData.value.barChartData.labels.length }, () => getRandomColor());
-  chartData.value.barChartData.datasets[0].backgroundColor = randomColors;
+  // Extract provincial office names and counts for bar chart data
+  chartData.value.provincialBarChartData.labels = Object.keys(provincialOfficeCounts);
+  chartData.value.provincialBarChartData.datasets[0].data = Object.values(provincialOfficeCounts);
+
+  // Include 'others' count in regional bar chart
+  if (othersCount > 0) {
+    chartData.value.regionalBarChartData.labels.push('Others');
+    chartData.value.regionalBarChartData.datasets[0].data.push(othersCount);
+  }
+
+  // Generate random colors for regional bar chart
+  const regionalRandomColors = Array.from({ length: chartData.value.regionalBarChartData.labels.length }, () => getRandomColor());
+  chartData.value.regionalBarChartData.datasets[0].backgroundColor = regionalRandomColors;
+
+  // Generate random colors for provincial bar chart
+  const provincialRandomColors = Array.from({ length: chartData.value.provincialBarChartData.labels.length }, () => getRandomColor());
+  chartData.value.provincialBarChartData.datasets[0].backgroundColor = provincialRandomColors;
 
   // Fetch data for pie chart
   const { data: pieData, error: pieError } = await supabase
@@ -101,24 +156,55 @@ async function fetchData() {
 
   // Update pie chart data
   chartData.value.pieChartData.datasets[0].data = [incomingCount, outgoingCount];
-  chartData.value.pieChartData.labels = ['Incoming', 'Outgoing']; // Set labels based on data
 
   // Generate random colors for pie chart
   chartData.value.pieChartData.datasets[0].backgroundColor = [getRandomColor(), getRandomColor()];
 }
 
 function getRandomColor() {
-  // Generate a random hexadecimal color code
   return '#' + Math.floor(Math.random() * 16777215).toString(16);
 }
 
 function createCharts() {
-  // Create and update bar chart
-  if (barChartCanvas.value) {
-    const ctx = barChartCanvas.value.getContext('2d');
-    new Chart(ctx, {
+  // Destroy existing chart instances
+  if (regionalBarChartCanvas.value) {
+    const regionalBarCtx = regionalBarChartCanvas.value.getContext('2d');
+    if (regionalBarCtx.chart) {
+      regionalBarCtx.chart.destroy();
+    }
+  }
+
+  if (provincialBarChartCanvas.value) {
+    const provincialBarCtx = provincialBarChartCanvas.value.getContext('2d');
+    if (provincialBarCtx.chart) {
+      provincialBarCtx.chart.destroy();
+    }
+  }
+
+  if (pieChartCanvas.value) {
+    const pieCtx = pieChartCanvas.value.getContext('2d');
+    if (pieCtx.chart) {
+      pieCtx.chart.destroy();
+    }
+ 
+  // Create and update regional bar chart
+  if (regionalBarChartCanvas.value) {
+    const regionalBarCtx = regionalBarChartCanvas.value.getContext('2d');
+    new Chart(regionalBarCtx, {
       type: 'bar',
-      data: chartData.value.barChartData,
+      data: chartData.value.regionalBarChartData,
+      options: {
+        // Chart.js options for customization
+      }
+    });
+  }
+
+  // Create and update provincial bar chart
+  if (provincialBarChartCanvas.value) {
+    const provincialBarCtx = provincialBarChartCanvas.value.getContext('2d');
+    new Chart(provincialBarCtx, {
+      type: 'bar',
+      data: chartData.value.provincialBarChartData,
       options: {
         // Chart.js options for customization
       }
@@ -127,8 +213,8 @@ function createCharts() {
 
   // Create and update pie chart
   if (pieChartCanvas.value) {
-    const ctx = pieChartCanvas.value.getContext('2d');
-    new Chart(ctx, {
+    const pieCtx = pieChartCanvas.value.getContext('2d');
+    new Chart(pieCtx, {
       type: 'pie',
       data: chartData.value.pieChartData,
       options: {
@@ -136,39 +222,58 @@ function createCharts() {
       }
     });
   }
+  }
 }
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;700&display=swap');
-
 .reports-container {
   display: flex;
   flex-direction: column;
   height: 100%;
-  width: 100%; /* Allow full width if needed */
+  width: 100%;
 }
 
 .main-content {
   display: flex;
-  flex: 1;
-  justify-content: center; /* Center content horizontally */
-  align-items: center; /* Center content vertically */
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
   padding: 15px;
-  width: 100%; /* Allow full width if needed */
+  width: 100%;
 }
 
 .reports-content {
   display: flex;
-  flex-direction: row;
+  flex-direction: column;
   justify-content: center;
   align-items: center;
-  grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
   grid-gap: 20px;
 }
 
+
+.charts-container {
+  display: flex;
+  flex-direction: row;
+  margin-top: 80px;
+  margin-left: 100px;
+}
+
+.bar-chart-container {
+  display: flex;
+  flex-direction: column; /* Arrange bar charts vertically */
+}
+
 .chart-container {
-  text-align: center; /* Center content horizontally */
-  margin-top: 100px; /* Add margin to the top */
+  text-align: center;
+  margin-top: 10px; /* Adjust margin for spacing */
+}
+
+.canvas-container {
+  width: 500; /* Adjust width to fit two bar charts */
 }
 </style>
+
+
+
+
