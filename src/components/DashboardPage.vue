@@ -178,16 +178,23 @@
                   <template v-if="editedDocument.in_out === 'Incoming'">
                     <option value="Forwarded">Forwarded</option>
                     <option value="Pending">Pending</option>
+                    <option value="Returned">Returned</option>
                   </template>
                   <template v-else-if="editedDocument.in_out === 'Outgoing'">
                     <option value="Released">Released</option>
                     <option value="Pending">Pending</option>
+                    <option value="Returned">Returned</option>
                   </template>
                   <template v-else>
                     <!-- Default options -->
                     <option value="">Select Status</option>
                   </template>
                 </select>
+              </div>
+              <div class="form-group"></div>
+              <div v-if="editedDocument.status === 'Returned'" class="form-group">
+                <label for="note">Note:</label>
+                <input type="text" id="note" v-model="editedDocument.note" required>
               </div>
             </div>
 
@@ -232,6 +239,8 @@ function toggleSidebar() {
 watch(searchQuery, () => {
   fetchDocuments();
 });
+
+
 
 async function confirmDelete(document) {
   const { value } = await Swal.fire({
@@ -435,19 +444,22 @@ function getStatusClass(status, in_out) {
     return {
       'status-capsule': true,
       'green': status === 'Forwarded',
-      'yellow': status === 'Pending'
+      'yellow': status === 'Pending',
+      'orange': status === 'Returned'
     };
   } else if (in_out === 'Outgoing') {
     return {
       'status-capsule': true,
       'green': status === 'Released',
-      'yellow': status === 'Pending'
+      'yellow': status === 'Pending',
+      'orange': status === 'Returned'
     };
   } else {
     return {
       'status-capsule': true,
       'green': status === 'Forwarded',
-      'yellow': status === 'Pending'
+      'yellow': status === 'Pending',
+      'orange': status === 'Returned'
     };
   }
 }
@@ -503,6 +515,10 @@ function submitForm() {
 
 async function updateDocumentInDatabase(document) {
   try {
+    if (document.status !== 'Returned') {
+      // If status is not 'Returned', set note to null
+      document.note = null;
+    }
     const { error } = await supabase
       .from('taggingForm')
       .update({
@@ -516,7 +532,8 @@ async function updateDocumentInDatabase(document) {
         fwd_date: document.fwd_date,
         office: document.office,
         in_out: document.in_out,
-        status: document.status
+        status: document.status,
+        note: document.note
       })
       .eq('id', document.id); // Assuming 'id' is the unique identifier for the document
 
@@ -579,7 +596,7 @@ async function deleteDocument(document) {
 }
 
 const filterOptions = [
-{ value: 'Incoming', label: 'Incoming' },
+  { value: 'Incoming', label: 'Incoming' },
   { value: 'Outgoing', label: 'Outgoing' },
   { value: '', label: 'All' },
 ];
@@ -933,6 +950,11 @@ onMounted(fetchUserData);
 
 .yellow {
   background-color: yellow;
+  color: black;
+}
+
+.orange {
+  background-color: orange;
   color: black;
 }
 
