@@ -32,7 +32,7 @@
     </ul>
     <div class="logout">
     <ul>
-      <li :class="{ 'active': $route.path === '/' }"><router-link to="/" @click="logout">
+      <li :class="{ 'active': $route.path === '/' }"><router-link to="/" @click="confirmLogout">
         <div class="tab" style="width: 150px;"><span class="icons">
           <font-awesome-icon :icon="['fas', 'right-from-bracket']" /></span>Logout</div></router-link></li>
     </ul>
@@ -63,6 +63,12 @@ const logout = () => {
   localStorage.removeItem('sb-yszwlktldjrohxuneyop-auth-token');
   // Redirect to login page
   router.push('/');
+};
+
+const confirmLogout = () => {
+  if (window.confirm('Are you sure you want to log out?')) {
+    logout();
+  }
 };
 
 const fetchUserData = async () => {
