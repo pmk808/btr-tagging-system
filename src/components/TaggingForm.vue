@@ -118,11 +118,23 @@ onMounted(async () => {
 
 const fetchLatestDocumentCode = async () => {
   try {
+    let departmentPrefix;
+    
+    // Determine department prefix based on department value
+    if (department.value.startsWith('R') || department.value === 'others') {
+      departmentPrefix = 'R';
+    } else if (department.value.startsWith('P')) {
+      departmentPrefix = 'P';
+    } else {
+      // Handle other cases if needed
+      departmentPrefix = ''; // or some default value
+    }
+
     const { data, error } = await supabase
       .from('taggingForm')
       .select('document_code')
       .eq('in_out', in_out.value) // Filter by the current transaction type
-      .eq('office', department.value)
+      .like('office', `${departmentPrefix}%`) // Filter by department prefix
       .order('document_code', { ascending: false })
       .limit(1);
 
@@ -135,6 +147,7 @@ const fetchLatestDocumentCode = async () => {
     return '';
   }
 };
+
 
 const generateDocumentCode = () => {
   const defaultPrefix = 'BTrXI-';
