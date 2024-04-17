@@ -17,7 +17,7 @@
         <h2>REGISTER AN ACCOUNT</h2>
         <form @submit.prevent="register" :class="{ 'error': registrationError }">
           <input type="email" v-model="email" placeholder="Email" required>
-          <input type="password" v-model="registerPassword" placeholder="Password" required>
+          <input type="password" v-model="registerPassword" placeholder="Password" required maxlength="8">
           <input type="text" v-model="name" placeholder="Name" required>
           <select v-model="department">
             <option disabled value="">Select Department</option>
@@ -65,6 +65,17 @@ const register = async () => {
   try {
     if (!department.value) {
       registrationError.value = "Please select a department";
+      return;
+    }
+
+    if (registerPassword.value.length < 8) {
+      registrationError.value = "Password must be at least 8 characters long";
+      return;
+    }
+
+    // Check for at least one uppercase letter
+    if (!/[A-Z]/.test(registerPassword.value)) {
+      registrationError.value = "Password must contain at least one uppercase letter";
       return;
     }
 
