@@ -1,11 +1,11 @@
 <template>
   <div class="tagging-form">
     <div class="form-row">
-    <h2>Document Tagging Form</h2>
-    <div class="header-info">
-      <p class="document-code">Document Code: {{ displayDocumentCode || 'Generating Code...' }} </p>
-      <p class="current-date">Date: {{ currentDate }}</p>
-    </div>
+      <h2>Document Tagging Form</h2>
+      <div class="header-info">
+        <p class="document-code">Document Code: {{ displayDocumentCode || 'Generating Code...' }} </p>
+        <p class="current-date">Date: {{ currentDate }}</p>
+      </div>
     </div>
     <form @submit.prevent="submitForm">
       <!-- Document Type and Action Needed -->
@@ -20,9 +20,9 @@
         </div>
       </div>
       <div class="title-group">
-          <label for="documentTitle">Document Title</label>
-          <textarea id="documentTitle" v-model="documentTitle" rows="6" style="resize: none;" required></textarea>
-        </div>
+        <label for="documentTitle">Document Title</label>
+        <textarea id="documentTitle" v-model="documentTitle" rows="6" style="resize: none;" required></textarea>
+      </div>
       <!-- Agency/Source and Received From/By -->
       <div class="form-row">
         <div class="form-group">
@@ -40,9 +40,9 @@
           <label for="forward">Forwarded To: &nbsp;</label>
           <input type="text" id="forward" v-model="forward" required>
         </div>
-          <div class="form-group">
-            <label for="fwdDate">Forwarded Date: &nbsp;</label>
-            <input type="text" id="fwdDate" v-model="currentDate" readonly>
+        <div class="form-group">
+          <label for="fwdDate">Forwarded Date: &nbsp;</label>
+          <input type="text" id="fwdDate" v-model="currentDate" readonly>
         </div>
       </div>
       <!-- Office: and In or Out: -->
@@ -52,7 +52,7 @@
           <select v-model="department" required>
             <option disabled value="">Select Department</option>
             <option value="Raccounting">Admin - Accounting</option>
-            <optiion value="Ragbs">Admin - AGBs</optiion>
+            <option value="Ragbs">Admin - AGBs</option>
             <option value="Rbudget">Admin - Budget</option>
             <option value="Rcashier">Admin - Cashier</option>
             <option value="Rcentral">Admin - Central</option>
@@ -102,10 +102,10 @@ const forward = ref('');
 const department = ref('');
 const in_out = ref('');
 const status = ref('Pending');
-const documentCode = ref(''); 
+const documentCode = ref('');
 const generatedDocumentCode = ref('');
 const displayDocumentCode = ref('');
-const isLoading = ref(true); 
+const isLoading = ref(true);
 
 const currentDate = new Date().toLocaleDateString();
 
@@ -117,23 +117,37 @@ onMounted(async () => {
 });
 
 const fetchLatestDocumentCode = async () => {
-    try {
-        const { data, error } = await supabase
-            .from('taggingForm')
-            .select('document_code')
-            .eq('in_out', in_out.value) // Filter by the current transaction type
-            .order('document_code', { ascending: false })
-            .limit(1);
-
-        if (error) throw error;
-
-        documentCode.value = data.length > 0 ? data[0].document_code : '';
-
-    } catch (error) {
-        console.error('Error fetching latest document code:', error);
-        return '';
+  try {
+    let departmentPrefix;
+    
+    // Determine department prefix based on department value
+    if (department.value.startsWith('R') || department.value === 'others') {
+      departmentPrefix = 'R';
+    } else if (department.value.startsWith('P')) {
+      departmentPrefix = 'P';
+    } else {
+      // Handle other cases if needed
+      departmentPrefix = ''; // or some default value
     }
+
+    const { data, error } = await supabase
+      .from('taggingForm')
+      .select('document_code')
+      .eq('in_out', in_out.value) // Filter by the current transaction type
+      .like('office', `${departmentPrefix}%`) // Filter by department prefix
+      .order('document_code', { ascending: false })
+      .limit(1);
+
+    if (error) throw error;
+
+    documentCode.value = data.length > 0 ? data[0].document_code : '';
+
+  } catch (error) {
+    console.error('Error fetching latest document code:', error);
+    return '';
+  }
 };
+
 
 const generateDocumentCode = () => {
   const defaultPrefix = 'BTrXI-';
@@ -142,35 +156,35 @@ const generateDocumentCode = () => {
   const month = ('0' + (currentDate.getMonth() + 1)).slice(-2);
 
   // Extract transaction number with padding intact
-  let transactionNumber = 0; 
+  let transactionNumber = 0;
   if (documentCode.value) {
-    transactionNumber = parseInt(documentCode.value.slice(-3), 10); 
+    transactionNumber = parseInt(documentCode.value.slice(-3), 10);
   }
 
   // Increment and ensure padding
-  transactionNumber++; 
+  transactionNumber++;
   const paddedTransactionNumber = transactionNumber.toString().padStart(3, '0');
 
   let prefix = ''; // Initialize prefix variable
 
   // Determine prefix based on selected department
   switch (true) {
-  case department.value.startsWith('R'):
-    if (department.value === 'RDoffice') {
-      prefix = 'RD';
-    } else {
-      prefix = 'R';
-    }
-    break;
-  case department.value.startsWith('P'):
-    prefix = 'P';
-    break;
-  case department.value === 'others':
-    prefix = 'R'; // Assuming you want 'R' for 'others'
-    break;
-  default:
-    prefix = ''; // Handle default case if needed
-    break;
+    case department.value.startsWith('R'):
+      if (department.value === 'RDoffice') {
+        prefix = 'RD';
+      } else {
+        prefix = 'R';
+      }
+      break;
+    case department.value.startsWith('P'):
+      prefix = 'P';
+      break;
+    case department.value === 'others':
+      prefix = 'R'; // Assuming you want 'R' for 'others'
+      break;
+    default:
+      prefix = ''; // Handle default case if needed
+      break;
 
   }
 
@@ -179,8 +193,8 @@ const generateDocumentCode = () => {
 
 
 const updateDocumentCode = async () => {
-  const latestCode = await fetchLatestDocumentCode(); 
-  displayDocumentCode.value = generateDocumentCode(latestCode); 
+  const latestCode = await fetchLatestDocumentCode();
+  displayDocumentCode.value = generateDocumentCode(latestCode);
 };
 
 onMounted(async () => {
@@ -188,15 +202,15 @@ onMounted(async () => {
 });
 
 watch(in_out, async () => { // Remove newValue and oldValue
-  isLoading.value = true; 
-  await updateDocumentCode(); 
-  isLoading.value = false; 
+  isLoading.value = true;
+  await updateDocumentCode();
+  isLoading.value = false;
 });
 
 
 const submitForm = async () => {
-  
-  await fetchLatestDocumentCode(); 
+
+  await fetchLatestDocumentCode();
   const documentCode = generateDocumentCode();
   const currentDate = new Date().toLocaleDateString();
 
@@ -366,6 +380,7 @@ select {
   font-family: 'Poppins', sans-serif;
   font-size: 12px;
 }
+
 /* Submit Button */
 button[type="submit"],
 button[type="reset"] {

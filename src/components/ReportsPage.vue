@@ -33,6 +33,9 @@
           <div class="chart-container pie-chart-container">
             <h2>Pie Chart</h2>
             <canvas ref="pieChartCanvas" width="450" height="300"></canvas>
+            <div class="pie-chart-labels" v-if="piePercentages">
+              <div v-for="(percentage, label) in piePercentages" :key="label">{{ label }}: {{ percentage }}%</div>
+            </div>
           </div>
         </div>
       </div>
@@ -40,9 +43,6 @@
     <FooterComponent />
   </div>
 </template>
-
-
-
 
 <script setup>
 import HeaderComponent from '../components/dashboardcomp/HeaderComponent.vue';
@@ -58,6 +58,8 @@ const sidebarVisible = ref(true);
 const regionalBarChartCanvas = ref(null);
 const provincialBarChartCanvas = ref(null);
 const pieChartCanvas = ref(null);
+const piePercentages = ref(null);
+
 
 function toggleSidebar() {
   sidebarVisible.value = !sidebarVisible.value;
@@ -110,10 +112,26 @@ async function fetchData() {
 
   data.forEach(item => {
     const office = item.office;
-    if (office.startsWith('R') || office === 'RDoffice') {
-      regionalOfficeCounts[office] = (regionalOfficeCounts[office] || 0) + 1;
+    if (office.startsWith('R')) {
+      // Remove 'R' prefix for display
+      let formattedOffice = office.replace(/^R/, '');
+      // Check if the office name is exactly 'Doffice' (for 'RDoffice')
+      if (formattedOffice === 'Doffice') {
+        formattedOffice = 'RD Office'; // Keep it as 'RDoffice'
+      } else {
+        // Capitalize the first letter
+        formattedOffice = formattedOffice.charAt(0).toUpperCase() + formattedOffice.slice(1);
+      }
+      regionalOfficeCounts[formattedOffice] = (regionalOfficeCounts[formattedOffice] || 0) + 1;
     } else if (office.startsWith('P')) {
-      provincialOfficeCounts[office] = (provincialOfficeCounts[office] || 0) + 1;
+      // Remove 'P' prefix for display
+      let formattedOffice = office.replace(/^P/, '');
+      if (formattedOffice === 'dds') {
+        formattedOffice = 'Davao del Sur';
+      }
+      // Capitalize the first letter
+      formattedOffice = formattedOffice.charAt(0).toUpperCase() + formattedOffice.slice(1);
+      provincialOfficeCounts[formattedOffice] = (provincialOfficeCounts[formattedOffice] || 0) + 1;
     } else {
       othersCount++;
     }
@@ -129,9 +147,16 @@ async function fetchData() {
 
   // Include 'others' count in regional bar chart
   if (othersCount > 0) {
-    chartData.value.regionalBarChartData.labels.push('Others');
+    chartData.value.regionalBarChartData.labels.push('Other Agencies');
     chartData.value.regionalBarChartData.datasets[0].data.push(othersCount);
   }
+
+  chartData.value.regionalBarChartData.labels = chartData.value.regionalBarChartData.labels.map(label => {
+    return label.charAt(0).toUpperCase() + label.slice(1);
+  });
+  chartData.value.provincialBarChartData.labels = chartData.value.provincialBarChartData.labels.map(label => {
+    return label.charAt(0).toUpperCase() + label.slice(1);
+  });
 
   // Generate random colors for regional bar chart
   const regionalRandomColors = Array.from({ length: chartData.value.regionalBarChartData.labels.length }, () => getRandomColor());
@@ -165,6 +190,20 @@ function getRandomColor() {
   return '#' + Math.floor(Math.random() * 16777215).toString(16);
 }
 
+function logPercentages(pieChart) {
+  const data = pieChart.data.datasets[0].data;
+  const total = data.reduce((acc, val) => acc + val, 0);
+  const percentages = {};
+
+  data.forEach((value, index) => {
+    const percentage = ((value / total) * 100).toFixed(2);
+    const label = pieChart.data.labels[index];
+    percentages[label] = percentage;
+  });
+
+  piePercentages.value = percentages;
+}
+
 function createCharts() {
   // Destroy existing chart instances
   if (regionalBarChartCanvas.value) {
@@ -186,7 +225,8 @@ function createCharts() {
     if (pieCtx.chart) {
       pieCtx.chart.destroy();
     }
- 
+  }
+
   // Create and update regional bar chart
   if (regionalBarChartCanvas.value) {
     const regionalBarCtx = regionalBarChartCanvas.value.getContext('2d');
@@ -194,7 +234,24 @@ function createCharts() {
       type: 'bar',
       data: chartData.value.regionalBarChartData,
       options: {
-        // Chart.js options for customization
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Regional Transaction Counts' // Label for y-axis
+            },
+            ticks: {
+              stepSize: 1, // Display whole numbers only
+              precision: 0 // Remove decimal points
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            display: false // Hide legend
+          }
+        }
       }
     });
   }
@@ -206,7 +263,24 @@ function createCharts() {
       type: 'bar',
       data: chartData.value.provincialBarChartData,
       options: {
-        // Chart.js options for customization
+        scales: {
+          y: {
+            beginAtZero: true,
+            title: {
+              display: true,
+              text: 'Provincial Transaction Counts' // Label for y-axis
+            },
+            ticks: {
+              stepSize: 1, // Display whole numbers only
+              precision: 0 // Remove decimal points
+            }
+          }
+        },
+        plugins: {
+          legend: {
+            display: false // Hide legend
+          }
+        }
       }
     });
   }
@@ -214,14 +288,20 @@ function createCharts() {
   // Create and update pie chart
   if (pieChartCanvas.value) {
     const pieCtx = pieChartCanvas.value.getContext('2d');
-    new Chart(pieCtx, {
+    const pieChart = new Chart(pieCtx, {
       type: 'pie',
       data: chartData.value.pieChartData,
       options: {
-        // Chart.js options for customization
+        plugins: {
+          legend: {
+            display: true, // Show legend
+            position: 'top'
+          },
+        }
       }
     });
-  }
+
+    logPercentages(pieChart);
   }
 }
 </script>
@@ -261,19 +341,22 @@ function createCharts() {
 
 .bar-chart-container {
   display: flex;
-  flex-direction: column; /* Arrange bar charts vertically */
+  flex-direction: column;
+  /* Arrange bar charts vertically */
 }
 
 .chart-container {
   text-align: center;
-  margin-top: 10px; /* Adjust margin for spacing */
+  margin-top: 10px;
+  /* Adjust margin for spacing */
 }
 
 .canvas-container {
-  width: 500; /* Adjust width to fit two bar charts */
+  width: 500;
+  /* Adjust width to fit two bar charts */
+}
+
+.pie-chart-labels {
+  margin-top: 10px;
 }
 </style>
-
-
-
-
