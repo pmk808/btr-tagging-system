@@ -101,9 +101,6 @@
               <button @click="changePage('Previous')" :disabled="currentPage.value === 1">Previous</button>&nbsp;
               <button @click="changePage('Next')" :disabled="nextButtonDisabled">Next</button>
             </div>
-            <div class="clear-button">
-              <button @click="cleardocs">Clear Documents</button>
-            </div>
           </div>
         </div>
       </div>
@@ -599,50 +596,6 @@ async function deleteDocument(document) {
 }
 
 
-async function cleardocs() {
-  // Display a confirmation dialog
-  const { isConfirmed } = await Swal.fire({
-    title: 'Are you sure?',
-    text: "This action will delete all documents. This cannot be undone.",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#d33',
-    cancelButtonColor: '#3085d6',
-    confirmButtonText: 'Yes, clear all documents!'
-  });
-
-  // If user confirms the deletion
-  if (isConfirmed) {
-    try {
-      // Delete all documents from the database
-      const { error } = await supabase.from('taggingForm').delete();
-
-      if (error) {
-        throw error;
-      }
-
-      // Clear the documentList array
-      documentList.value = [];
-
-      // Show a success message
-      Swal.fire({
-        icon: 'success',
-        title: 'All documents cleared successfully!',
-        showConfirmButton: false,
-        timer: 1500
-      });
-    } catch (error) {
-      console.error('Error clearing documents:', error.message);
-      // Show an error message if deletion fails
-      Swal.fire({
-        icon: 'error',
-        title: 'Oops...',
-        text: 'An error occurred while clearing documents.',
-      });
-    }
-  }
-}
-
 const filterOptions = [
   { value: 'Incoming', label: 'Incoming' },
   { value: 'Outgoing', label: 'Outgoing' },
@@ -767,24 +720,6 @@ onMounted(fetchUserData);
 .pagination-container button:disabled {
   opacity: 0.5;
   cursor: not-allowed;
-}
-
-.clear-button {
-  display: flex;
-  justify-content: right;
-  margin-top: 20px;
-}
-
-.clear-button button{
-  background-color: #df0000;
-  color: #fff;
-  font-weight: bold;
-  font-size: medium;
-  border: none;
-  border-radius: 5px;
-  padding: 7px 12px;
-  cursor: pointer;
-  margin-right: 5px;
 }
 
 .button-container {
