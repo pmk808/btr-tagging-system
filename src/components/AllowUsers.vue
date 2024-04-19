@@ -4,21 +4,29 @@
     <div class="main-wrapper" :class="{ 'sidebar-collapsed': !sidebarVisible }">
       <SidebarComponent :sidebar-visible="sidebarVisible" @toggle-sidebar="toggleSidebar" />
       <div class="main-content">
-        <!-- Add content specific to Allow Users page here -->
         <div class="allow-users-content">
           <h2>Allow Users</h2>
-          <!-- Table -->
           <table class="user-table">
             <thead>
               <tr>
-                <th>Name</th>
-                <th>Email</th>
-                <th>Department</th>
-                <th>Status</th>
+                <th style="width: 30%;">Name</th>
+                <th style="width: 30%;">Email</th>
+                <th style="width: 25%;">Department</th>
+                <th style="width: 25%;">Action</th>
               </tr>
             </thead>
             <tbody>
-              <!-- Table rows will go here -->
+              <tr v-for="user in users" :key="user.id">
+                <td>{{ user.name }}</td>
+                <td>{{ user.email }}</td>
+                <td>{{ user.department }}</td>
+                <td>
+                  <select v-model="user.statusValue" @change="updateUserStatus(user, $event.target.value)">
+                    <option value="actived">Activate</option>
+                    <option value="deactivated">Deactivate</option>
+                  </select>
+                </td>
+              </tr>
             </tbody>
           </table>
         </div>
@@ -29,22 +37,55 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 import HeaderComponent from '../components/dashboardcomp/HeaderComponent.vue';
 import SidebarComponent from '../components/dashboardcomp/SidebarComponent.vue';
 import FooterComponent from '../components/dashboardcomp/FooterComponent.vue';
 import '@fortawesome/fontawesome-free/js/all.js';
+import { supabase } from '../supabaseconfig.js';
 
 const sidebarVisible = ref(true);
+const users = ref([]);
 
 function toggleSidebar() {
   sidebarVisible.value = !sidebarVisible.value;
 }
+
+async function fetchUsers() {
+  const { data, error } = await supabase.from('users').select('*');
+  if (error) {
+    console.error('Error fetching users:', error.message);
+  } else {
+    users.value = data.map(user => ({
+      ...user,
+      statusValue: user.status 
+    }));
+  }
+}
+
+const updateUserStatus = async (user, status) => {
+  const newStatus = status === 'actived' ? 'actived' : 'deactivated'; 
+
+  user.status = newStatus; 
+
+  const { error } = await supabase
+    .from('users')
+    .update({ status: newStatus })
+    .eq('uid', user.uid);
+
+  if (error) {
+    console.error('Error updating user status:', error.message);
+  } else {
+    console.log('User status updated successfully!');
+  }
+};
+
+onMounted(fetchUsers);
 </script>
 
 <style scoped>
 .allow-users-content {
-  margin-top: 150px; /* Adjust the margin-top value as needed */
+  margin-top: 150px;
   display: flex;
   flex-direction: column;
   position: relative;
