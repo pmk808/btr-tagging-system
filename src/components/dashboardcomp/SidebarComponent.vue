@@ -9,6 +9,7 @@
         <div class="tab"><span class="icons">
           <font-awesome-icon :icon="['fas', 'house']" /></span>Dashboard</div></router-link></li>
 
+      <!-- Conditionally render AllowUsers component -->
       <template v-if="isAdmin"> 
         <li v-if="loading" :class="{ 'active': $route.path === '/tagging' }">
           <router-link to="/tagging">
@@ -25,7 +26,15 @@
            </div>
          </router-link>
        </li>
+       <li :class="{ 'active': $route.path === '/allow-users' }">
+         <router-link to="/allow-users">
+           <div class="tab">
+             <span class="icons"><font-awesome-icon :icon="['fas', 'users']" /></span>Users
+           </div>
+         </router-link>
+       </li>
       </template>
+
       <li :class="{ 'active': $route.path === '/reports' }"><router-link to="/reports">
         <div class="tab"><span class="icons">
           <font-awesome-icon :icon="['fas', 'chart-area']" /></span>Reports</div></router-link></li>
