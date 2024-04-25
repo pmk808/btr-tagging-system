@@ -73,6 +73,7 @@ const login = async () => {
           // Redirect to dashboard if the account is activated
           router.push('/dashboard');
         } else {
+          localStorage.removeItem('sb-yszwlktldjrohxuneyop-auth-token');
           // Display error if the account is not activated
           loginError.value = 'Your account is not activated. Please contact the administrator.';
         }
