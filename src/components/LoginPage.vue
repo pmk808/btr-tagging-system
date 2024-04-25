@@ -51,7 +51,7 @@ const loading = ref(false);
 const login = async () => {
   loading.value = true;
   try {
-    const { error } = await supabase.auth.signInWithPassword({
+    const {error } = await supabase.auth.signInWithPassword({
       email: email.value,
       password: password.value
     });
@@ -59,7 +59,24 @@ const login = async () => {
     if (error) {
       loginError.value = error.message;
     } else {
-      router.push('/dashboard');
+      // Check if the user is activated
+      const { data: userData, error: userError } = await supabase
+        .from('users')
+        .select('status')
+        .eq('email', email.value)
+        .single();
+
+      if (userError) {
+        loginError.value = userError.message;
+      } else {
+        if (userData.status === 'activated') {
+          // Redirect to dashboard if the account is activated
+          router.push('/dashboard');
+        } else {
+          // Display error if the account is not activated
+          loginError.value = 'Your account is not activated. Please contact the administrator.';
+        }
+      }
     }
   } catch (error) {
     loginError.value = error.message;

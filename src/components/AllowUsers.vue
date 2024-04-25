@@ -22,7 +22,7 @@
                 <td>{{ user.department }}</td>
                 <td>
                   <select v-model="user.statusValue" @change="updateUserStatus(user, $event.target.value)">
-                    <option value="actived">Activate</option>
+                    <option value="activated">Activate</option>
                     <option value="deactivated">Deactivate</option>
                   </select>
                 </td>
@@ -64,7 +64,7 @@ async function fetchUsers() {
 }
 
 const updateUserStatus = async (user, status) => {
-  const newStatus = status === 'actived' ? 'actived' : 'deactivated'; 
+  const newStatus = status === 'activated' ? 'activated' : 'deactivated'; 
 
   user.status = newStatus; 
 
@@ -127,5 +127,16 @@ onMounted(fetchUsers);
 .user-table th {
   background-color: #0038A7;
   color: #f2f2f2;
+}
+
+.user-table td select {
+    border: 1px solid #dddddd;
+    padding: 5px;
+    text-align: center;
+    font-size: 12px;
+    background-color: #0038A7;
+    color: #f2f2f2;
+    border-radius: 10px;
+    font-weight: 300;
 }
 </style>
