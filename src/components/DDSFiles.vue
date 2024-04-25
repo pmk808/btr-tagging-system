@@ -70,8 +70,8 @@ const sidebarVisible = ref(true);
 }
 
 .dds-files th {
-    background-color: #0038A7;
-    color: #f2f2f2;
+    background-color: #0038A7; /* separate once there is content */
+    color: #f2f2f2;             /* separate once there is content */
     font-size: 12px;
     border: 1px solid #dddddd;
   padding: 5px;
