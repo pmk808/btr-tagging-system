@@ -21,11 +21,11 @@
           <input type="text" v-model="name" placeholder="Name" required>
           <select v-model="department">
             <option disabled value="">Select Department</option>
-            <option value="Receiving">Receiving Officer</option>
+            <option :disabled="isReceivingOfficer" value="Receiving">Receiving Officer</option>
             <option value="Admin">Admin Office</option>
             <option value="Provincial">Provincial Office</option>
             <option value="Accounting">Accounting Office</option>
-            <option value="RD">Regional Director</option>
+            <option :disabled="isRegionalDirector" value="RD">Regional Director</option>
           </select>
           <button :disabled="loading" type="submit">
             <span v-if="loading">Registering...</span>
@@ -49,16 +49,61 @@
 <script setup>
 import { useRouter } from 'vue-router';
 import { supabase } from '../supabaseconfig.js';
-import { ref } from 'vue';
+import { ref, onMounted } from 'vue';
 
 const router = useRouter();
 const registrationError = ref('');
 const loading = ref(false);
 
+const isReceivingOfficer = ref(false);
+const isRegionalDirector = ref(false);
+
 const email = ref('');
 const registerPassword = ref('');
 const name = ref('');
 const department = ref('');
+
+const checkRegionalDirector = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('uid')
+      .eq('department', 'RD')
+      .single();
+    
+    if (error) {
+      throw error;
+    }
+
+    isRegionalDirector.value = !!data; // Set isRegionalDirector based on whether there is a user with 'RD' department
+  } catch (error) {
+    console.error('Error checking for Regional Director:', error.message);
+  }
+};
+
+// Function to check if there is already a user with 'Receiving' department
+const checkReceivingOfficer = async () => {
+  try {
+    const { data, error } = await supabase
+      .from('users')
+      .select('uid')
+      .eq('department', 'Receiving')
+      .single();
+    
+    if (error) {
+      throw error;
+    }
+
+    isReceivingOfficer.value = !!data; // Set isReceivingOfficer based on whether there is a user with 'Receiving' department
+  } catch (error) {
+    console.error('Error checking for Receiving Officer:', error.message);
+  }
+};
+
+onMounted(() => {
+  checkRegionalDirector(); // Call checkRegionalDirector when the component is mounted
+  checkReceivingOfficer(); // Call checkReceivingOfficer when the component is mounted
+});
 
 const register = async () => {
   loading.value = true;
@@ -92,11 +137,12 @@ const register = async () => {
       // After successful registration, store additional user details in the Supabase users table
       const { error } = await supabase
         .from('users')
-        .insert([{ email: email.value, name: name.value, department: department.value, isAdmin: isAdmin }]);
+        .insert([{ email: email.value, name: name.value, department: department.value, isAdmin: isAdmin, status: 'deactivated' }]);
 
       if (error) {
         registrationError.value = error.message;
       } else {
+        localStorage.removeItem('sb-yszwlktldjrohxuneyop-auth-token');
         // Redirect on success
         router.push('/');
       }
@@ -203,7 +249,7 @@ html {
   margin-bottom: 20px;
 }
 
-.registration-form select{
+.registration-form select {
   font-family: 'Poppins', sans-serif;
   width: 95%;
   border: 1px solid #0038A7;
