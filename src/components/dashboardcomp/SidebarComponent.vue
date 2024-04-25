@@ -38,6 +38,9 @@
       <li :class="{ 'active': $route.path === '/reports' }"><router-link to="/reports">
         <div class="tab"><span class="icons">
           <font-awesome-icon :icon="['fas', 'chart-area']" /></span>Reports</div></router-link></li>
+          <li :class="{ 'active': $route.path === '/provincial' }"><router-link to="/reports">
+        <div class="tab"><span class="icons">
+          <font-awesome-icon :icon="['fas', 'location-arrow']" /></span>DDS Files</div></router-link></li>
     </ul>
     <div class="logout">
     <ul>
