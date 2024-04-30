@@ -17,7 +17,7 @@
         <h2>REGISTER AN ACCOUNT</h2>
         <form @submit.prevent="register" :class="{ 'error': registrationError }">
           <input type="email" v-model="email" placeholder="Email" required>
-          <input type="password" v-model="registerPassword" placeholder="Password" required maxlength="8">
+          <input type="password" v-model="registerPassword" placeholder="Password (8 characters only)" required maxlength="8">
           <input type="text" v-model="name" placeholder="Name" required>
           <select v-model="department">
             <option disabled value="">Select Department</option>

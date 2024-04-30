@@ -5,7 +5,9 @@
             <SidebarComponent :sidebar-visible="sidebarVisible" @toggle-sidebar="toggleSidebar" />
             <div class="main-content">
                 <div class="dds-content">
+
                     <table class="document-table">
+                 
                         <thead>
                             <tr>
                                 <th>Document Code</th>
@@ -44,6 +46,7 @@
                         <span>Page {{ currentPage }}</span>
                         <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
                     </div>
+
                 </div>
             </div>
             <FooterComponent />
@@ -112,7 +115,6 @@ const nextPage = () => {
 </script>
 
 <style scoped>
-/* Paste your DashboardPage.vue styles here */
 .document-table {
     width: 100%;
     max-width: 1500px;
@@ -184,5 +186,4 @@ const nextPage = () => {
     }
 }
 
-/* Add the rest of your DashboardPage.vue styles here */
 </style>
