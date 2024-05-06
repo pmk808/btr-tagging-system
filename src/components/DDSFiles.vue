@@ -7,7 +7,7 @@
                 <div class="dds-content">
 
                     <table class="document-table">
-                 
+
                         <thead>
                             <tr>
                                 <th>Document Code</th>
@@ -19,9 +19,9 @@
                                 <th>Date Received</th>
                                 <th>Forwarded To:</th>
                                 <th>Date</th>
-                                <th>Office</th>
                                 <th>In/Out</th>
                                 <th>Status</th>
+                                <th>Select Recipient</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -35,13 +35,21 @@
                                 <td>{{ document.rcv_date }}</td>
                                 <td>{{ document.fwd_to }}</td>
                                 <td>{{ document.fwd_date }}</td>
-                                <td>{{ document.office }}</td>
                                 <td>{{ document.in_out }}</td>
                                 <td>{{ document.status }}</td>
+                                <td>
+                                    <select v-model="document.select_recipient" @change="updateRecipient(document)">
+                                        <option value="Ma'am Gab">Ma'am Gab</option>
+                                        <option value="Sir Jones">Sir Jones</option>
+                                        <option value="Ma'am Susan">Ma'am Susan</option>
+                                        <option value="Sir Pong">Sir Pong</option>
+                                        <option value="Ma'am Cora">Ma'am Cora</option>
+                                    </select>
+                                </td>
                             </tr>
                         </tbody>
                     </table>
-                    <div class="pagination">
+                    <div class="pagination-container">
                         <button @click="prevPage" :disabled="currentPage === 1">Previous</button>
                         <span>Page {{ currentPage }}</span>
                         <button @click="nextPage" :disabled="currentPage === totalPages">Next</button>
@@ -73,6 +81,18 @@ const fetchDocuments = async () => {
         console.error('Error fetching documents:', error.message);
     } else {
         documents.value = data || [];
+    }
+};
+
+const updateRecipient = async (document) => {
+    try {
+        const { data, error } = await supabase.from('taggingForm').update({ select_recipient: document.select_recipient }).eq('id', document.id);
+        if (error) {
+            throw new Error(error.message);
+        }
+        console.log('Recipient updated successfully:', data);
+    } catch (error) {
+        console.error('Error updating recipient:', error.message);
     }
 };
 
@@ -152,12 +172,13 @@ const nextPage = () => {
 }
 
 .main-content {
-  display: flex;
-  flex: 1;
-  justify-content: center;
-  align-items: flex-start;
-  padding: 15px;
-  margin-top: 100px; /* Adjust the margin-top value to move the table down */
+    display: flex;
+    flex: 1;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 15px;
+    margin-top: 100px;
+    /* Adjust the margin-top value to move the table down */
 }
 
 @media screen and (max-width: 768px) {
@@ -186,4 +207,37 @@ const nextPage = () => {
     }
 }
 
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.pagination-container button {
+    background-color: #0038A7;
+    color: #fff;
+    border: none;
+    border-radius: 5px;
+    padding: 7px 12px;
+    cursor: pointer;
+    margin-right: 5px;
+    margin-left: 5px;
+}
+
+.pagination-container button:hover {
+    background-color: #001F5E;
+}
+
+.pagination-container button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+.button-container {
+    display: flex;
+
+    justify-content: center;
+    margin-bottom: 20px;
+}
 </style>
