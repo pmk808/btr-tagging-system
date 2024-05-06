@@ -99,6 +99,7 @@
             </table>
             <div class="pagination-container">
               <button @click="changePage('Previous')" :disabled="currentPage.value === 1">Previous</button>&nbsp;
+              <span>Page {{ currentPage }}</span>&nbsp;
               <button @click="changePage('Next')" :disabled="nextButtonDisabled">Next</button>
             </div>
           </div>
@@ -710,7 +711,7 @@ onMounted(fetchUserData);
   border-radius: 5px;
   padding: 7px 12px;
   cursor: pointer;
-  margin-right: 5px;
+  margin-right: 1px;
 }
 
 .pagination-container button:hover {
