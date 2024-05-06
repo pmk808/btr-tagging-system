@@ -26,6 +26,7 @@
                         </thead>
                         <tbody>
                             <tr v-for="document in paginatedDocuments" :key="document.id">
+                                {{ console.log(document) }}
                                 <td>{{ document.document_code }}</td>
                                 <td>{{ document.document_type }}</td>
                                 <td>{{ document.document_title }}</td>
@@ -36,7 +37,11 @@
                                 <td>{{ document.fwd_to }}</td>
                                 <td>{{ document.fwd_date }}</td>
                                 <td>{{ document.in_out }}</td>
-                                <td>{{ document.status }}</td>
+                                <td>
+                                    <div :class="getStatusClass(document.status)">
+                                        {{ document.status }}
+                                    </div>
+                                </td>
                                 <td>
                                     <select v-model="document.select_recipient" @change="updateRecipient(document)">
                                         <option value="Ma'am Gab">Ma'am Gab</option>
@@ -131,6 +136,15 @@ const nextPage = () => {
     if (currentPage.value < totalPages.value) {
         currentPage.value++;
     }
+};
+const getStatusClass = (status) => {
+    return {
+        'status-capsule': true,
+        'green': status === 'Released',
+        'yellow': status === 'Pending',
+        'orange': status === 'Returned'
+        // Add more conditions as needed
+    };
 };
 </script>
 
@@ -253,5 +267,28 @@ const nextPage = () => {
 
     justify-content: center;
     margin-bottom: 20px;
+}
+
+.status-capsule {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 20px;
+    font-size: 12px;
+}
+
+/* Define styles for different status colors */
+.green {
+    background-color: green;
+    color: white;
+}
+
+.yellow {
+    background-color: yellow;
+    color: black;
+}
+
+.orange {
+    background-color: orange;
+    color: white;
 }
 </style>
