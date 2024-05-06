@@ -135,7 +135,7 @@ const nextPage = () => {
 </script>
 
 <style scoped>
-.dds-container {
+.dds-content {
     display: flex;
     flex-direction: column;
     position: relative;
