@@ -135,6 +135,18 @@ const nextPage = () => {
 </script>
 
 <style scoped>
+.dds-container {
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    height: 100%;
+    padding-bottom: 10px;
+    flex: 1;
+    justify-content: center;
+    width: 85%;
+    margin-left: 15%;
+}
+
 .document-table {
     width: 100%;
     max-width: 1500px;
@@ -158,17 +170,19 @@ const nextPage = () => {
     color: #f2f2f2;
 }
 
-.document-table th,
-.document-table td {
+.document-table td select {
     border: 1px solid #dddddd;
     padding: 5px;
     text-align: center;
     font-size: 12px;
-}
-
-.document-table th {
     background-color: #0038A7;
     color: #f2f2f2;
+    border-radius: 10px;
+    font-weight: 300;
+    cursor: pointer;
+    /* Optional: Add cursor pointer */
+    width: 100%;
+    /* Optional: Set width */
 }
 
 .main-content {
