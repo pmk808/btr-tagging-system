@@ -5,6 +5,11 @@
             <SidebarComponent :sidebar-visible="sidebarVisible" @toggle-sidebar="toggleSidebar" />
             <div class="main-content">
                 <div class="dds-content">
+                    <div class="button-container">
+                        <button class="generate-report-button" @click="generatePDF">Generate PDF&nbsp;<font-awesome-icon
+                                :icon="['fas', 'download']" /></button>
+                        <input type="text" v-model="searchQuery" placeholder="Search..." class="search-input" />
+                    </div>
 
                     <table class="document-table">
 
@@ -52,6 +57,9 @@
                                     </select>
                                 </td>
                             </tr>
+                            <tr v-if="!paginatedDocuments.length">
+                                <td colspan="12" class="no-results">No results found</td>
+                            </tr>
                         </tbody>
                     </table>
                     <div class="pagination-container">
@@ -73,12 +81,15 @@ import { supabase } from '../supabaseconfig.js';
 import HeaderComponent from '../components/dashboardcomp/HeaderComponent.vue';
 import SidebarComponent from '../components/dashboardcomp/SidebarComponent.vue';
 import FooterComponent from '../components/dashboardcomp/FooterComponent.vue';
-import '@fortawesome/fontawesome-free/js/all.js';
+import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
+import jsPDF from 'jspdf';
+import 'jspdf-autotable';
 
 const sidebarVisible = ref(true);
 const documents = ref([]);
 const currentPage = ref(1);
 const pageSize = 10; // Number of items per page
+const searchQuery = ref('');
 
 const fetchDocuments = async () => {
     const { data, error } = await supabase.from('taggingForm').select('*').eq('office', 'Pdds');
@@ -108,7 +119,16 @@ onMounted(() => {
 
 // Computed property to filter documents with 'Pdds' value in the 'office' column
 const filteredDocuments = computed(() => {
-    return documents.value.filter(document => document.office === 'Pdds');
+    return documents.value.filter(document => document.office === 'Pdds' && (
+        (document.document_code && document.document_code.toLowerCase().includes(searchQuery.value.toLowerCase())) ||
+        (document.document_type && document.document_type.toLowerCase().includes(searchQuery.value.toLowerCase())) ||
+        (document.document_title && document.document_title.toLowerCase().includes(searchQuery.value.toLowerCase())) ||
+        (document.agency && document.agency.toLowerCase().includes(searchQuery.value.toLowerCase())) ||
+        (document.actions && document.actions.toLowerCase().includes(searchQuery.value.toLowerCase())) ||
+        (document.received_from && document.received_from.toLowerCase().includes(searchQuery.value.toLowerCase())) ||
+        (document.select_recipient && document.select_recipient.toLowerCase().includes(searchQuery.value.toLowerCase())) ||
+        (document.fwd_to && document.fwd_to.toLowerCase().includes(searchQuery.value.toLowerCase()))
+    ));
 });
 
 
@@ -137,15 +157,86 @@ const nextPage = () => {
         currentPage.value++;
     }
 };
-const getStatusClass = (status) => {
+function getStatusClass(status, in_out) {
+  if (in_out === 'Incoming') {
     return {
-        'status-capsule': true,
-        'green': status === 'Released',
-        'yellow': status === 'Pending',
-        'orange': status === 'Returned'
-        // Add more conditions as needed
+      'status-capsule': true,
+      'green': status === 'Forwarded',
+      'yellow': status === 'Pending',
+      'orange': status === 'Returned'
     };
+  } else if (in_out === 'Outgoing') {
+    return {
+      'status-capsule': true,
+      'green': status === 'Released',
+      'yellow': status === 'Pending',
+      'orange': status === 'Returned'
+    };
+  } else {
+    return {
+      'status-capsule': true,
+      'green': status === 'Forwarded',
+      'yellow': status === 'Pending',
+      'orange': status === 'Returned'
+    };
+  }
+}
+
+const generatePDF = () => {
+    // Create a new jsPDF instance with landscape orientation
+    const doc = new jsPDF({
+        orientation: 'landscape'
+    });
+
+    // Add a title to the PDF
+    doc.text('Document Report', 10, 10);
+
+    // Define columns for the table
+    const columns = [
+        'Document Code',
+        'Document Type',
+        'Document Title',
+        'Action Needed',
+        'Agency/Source',
+        'Received From/By',
+        'Date Received',
+        'Forwarded To',
+        'Date',
+        'In/Out',
+        'Status',
+        'Select Recipient'
+    ];
+
+    // Extract data from paginatedDocuments
+    const data = paginatedDocuments.value.map(document => [
+        document.document_code,
+        document.document_type,
+        document.document_title,
+        document.actions,
+        document.agency,
+        document.received_from,
+        document.rcv_date,
+        document.fwd_to,
+        document.fwd_date,
+        document.in_out,
+        document.status,
+        document.select_recipient
+    ]);
+
+    // Add autoTable plugin to jsPDF with blue header color
+    doc.autoTable({
+        head: [columns],
+        body: data,
+        headStyles: {
+            fillColor: [0, 56, 167], // Blue color
+            textColor: [255, 255, 255] // White text color
+        }
+    });
+
+    // Save the PDF
+    doc.save('dds_report.pdf');
 };
+
 </script>
 
 <style scoped>
@@ -264,9 +355,32 @@ const getStatusClass = (status) => {
 
 .button-container {
     display: flex;
-
-    justify-content: center;
+    justify-content: flex-start;
+    /* Align buttons to the left */
     margin-bottom: 20px;
+    margin-top: 20px;
+}
+
+.generate-report-button {
+    justify-content: space-between;
+    display: flex;
+    align-items: left;
+    background-color: #fdd116;
+    font-size: 15px;
+    color: #fff;
+    border-radius: 5px;
+    padding: 5px;
+    cursor: pointer;
+}
+
+.generate-report-button:hover {
+    background-color: #ffd700;
+    color: #0038a7;
+}
+
+.generate-report-button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
 }
 
 .status-capsule {
@@ -290,5 +404,20 @@ const getStatusClass = (status) => {
 .orange {
     background-color: orange;
     color: white;
+}
+
+.search-input {
+    margin: 0 auto;
+    font-size: 15px;
+    padding: 5px;
+    border-radius: 10px;
+    border: 1px solid #0038A7;
+    box-shadow: #0038A7 1px;
+    color: #000;
+}
+
+.no-results {
+    text-align: center;
+    /* Center the message */
 }
 </style>
