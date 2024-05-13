@@ -8,6 +8,8 @@ import TaggingForm from './components/TaggingForm.vue';
 import ReportsPage from './components/ReportsPage.vue';
 import AllowUsers from './components/AllowUsers.vue'; // Import the AllowUsers component
 import DDSFiles from './components/DDSFiles.vue'; // Import the DDSFiles component
+import DDSTaggingform from './components/DDSTaggingform.vue';
+import DDSTaggingpage from './components/DDSTaggingpage.vue';
 
 const routes = [
   { path: '/', component: LoginPage, meta: { requiresAuth: false } }, // Allow access to the login page by default
@@ -17,6 +19,8 @@ const routes = [
   { path: '/reports', component: ReportsPage, meta: { requiresAuth: true } }, // Protect reports route
   { path: '/loading', component: LoadingComponent }, // Add loading route
   { path: '/taggingForm', component: TaggingForm, meta: { requiresAuth: true } },
+  { path: '/ddstaggingform', component: DDSTaggingform, meta: { requiresAuth: true } },
+  { path: '/ddstaggingpage', component: DDSTaggingpage, meta: { requiresAuth: true } },
   { path: '/allow-users', component: AllowUsers, meta: { requiresAuth: true } }, // Add AllowUsers route
   { path: '/provincial', component: DDSFiles, meta: { requiresAuth: true } }, // Add provincial route
 ];
