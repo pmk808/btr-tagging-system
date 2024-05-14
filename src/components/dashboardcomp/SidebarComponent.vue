@@ -6,48 +6,60 @@
     <h3 class="h3">Welcome</h3>
     <ul>
       <li :class="{ 'active': $route.path === '/dashboard' }"><router-link to="/dashboard">
-        <div class="tab"><span class="icons">
-          <font-awesome-icon :icon="['fas', 'house']" /></span>Dashboard</div></router-link></li>
+          <div class="tab"><span class="icons">
+              <font-awesome-icon :icon="['fas', 'house']" /></span>Dashboard</div>
+        </router-link></li>
 
       <!-- Conditionally render AllowUsers component -->
-      <template v-if="isAdmin"> 
+      <template v-if="isAdmin">
         <li v-if="loading" :class="{ 'active': $route.path === '/tagging' }">
           <router-link to="/tagging">
             <div class="tab">
               <span class="icons"><font-awesome-icon :icon="['fas', 'tags']" /></span>
-              Tagging <font-awesome-icon :icon="['fas', 'spinner', 'fa-spin']"/> 
+              Tagging <font-awesome-icon :icon="['fas', 'spinner', 'fa-spin']" />
             </div>
           </router-link>
         </li>
         <li v-else :class="{ 'active': $route.path === '/tagging' }">
-         <router-link to="/tagging">
-           <div class="tab">
-             <span class="icons"><font-awesome-icon :icon="['fas', 'tags']" /></span>Tagging 
-           </div>
-         </router-link>
-       </li>
-       <li :class="{ 'active': $route.path === '/allow-users' }">
-         <router-link to="/allow-users">
-           <div class="tab">
-             <span class="icons"><font-awesome-icon :icon="['fas', 'users']" /></span>Users
-           </div>
-         </router-link>
-       </li>
+          <router-link to="/tagging">
+            <div class="tab">
+              <span class="icons"><font-awesome-icon :icon="['fas', 'tags']" /></span>Tagging
+            </div>
+          </router-link>
+        </li>
+        <li :class="{ 'active': $route.path === '/allow-users' }">
+          <router-link to="/allow-users">
+            <div class="tab">
+              <span class="icons"><font-awesome-icon :icon="['fas', 'users']" /></span>Users
+            </div>
+          </router-link>
+        </li>
       </template>
 
       <li :class="{ 'active': $route.path === '/reports' }"><router-link to="/reports">
-        <div class="tab"><span class="icons">
-          <font-awesome-icon :icon="['fas', 'chart-area']" /></span>Reports</div></router-link></li>
-          <li :class="{ 'active': $route.path === '/provincial' }"><router-link to="/provincial">
-        <div class="tab"><span class="icons">
-          <font-awesome-icon :icon="['fas', 'location-arrow']" /></span>DDS Files</div></router-link></li>
+          <div class="tab"><span class="icons">
+              <font-awesome-icon :icon="['fas', 'chart-area']" /></span>Reports</div>
+        </router-link></li>
+      <li v-if="!isAdmin && department === 'Provincial'" :class="{ 'active': $route.path === '/provincial' }">
+        <router-link to="/provincial">
+          <div class="tab"><span class="icons">
+              <font-awesome-icon :icon="['fas', 'folder-open']" /></span>DDS Files</div>
+        </router-link>
+      </li>
+      <li v-if="!isAdmin && department === 'Provincial'" :class="{ 'active': $route.path === '/ddstaggingpage' }">
+        <router-link to="/ddstaggingpage">
+          <div class="tab"><span class="icons">
+              <font-awesome-icon :icon="['fas', 'location-arrow']" /></span>DDS Out</div>
+        </router-link>
+      </li>
     </ul>
     <div class="logout">
-    <ul>
-      <li :class="{ 'active': $route.path === '/' }"><router-link to="/" @click="confirmLogout">
-        <div class="tab" style="width: 150px;"><span class="icons">
-          <font-awesome-icon :icon="['fas', 'right-from-bracket']" /></span>Logout</div></router-link></li>
-    </ul>
+      <ul>
+        <li :class="{ 'active': $route.path === '/' }"><router-link to="/" @click="confirmLogout">
+            <div class="tab" style="width: 150px;"><span class="icons">
+                <font-awesome-icon :icon="['fas', 'right-from-bracket']" /></span>Logout</div>
+          </router-link></li>
+      </ul>
     </div>
   </div>
 </template>
@@ -65,6 +77,7 @@ const router = useRouter();
 const sidebarVisible = ref(true);
 const isAdmin = ref(false); // Initialize isAdmin as false by default
 const loading = ref(false); // Initialize loading state
+const department = ref('');
 
 const toggleSidebar = () => {
   sidebarVisible.value = !sidebarVisible.value;
@@ -113,9 +126,10 @@ const fetchUserData = async () => {
       if (dbError) {
         throw dbError;
       }
-      
+
       // Check if user is admin
       isAdmin.value = userData?.isAdmin ?? false;
+      department.value = userData?.department ?? '';
     } catch (error) {
       console.error('Error fetching user data:', error.message);
     } finally {
@@ -132,10 +146,10 @@ const fetchUserDataFromDatabase = async (email) => {
     // Make a request to Supabase to fetch user data based on the email
     const { data: userData, error } = await supabase
       .from('users')
-      .select('isAdmin')
+      .select('isAdmin, department')
       .eq('email', email)
       .single();
-      
+
     if (error) {
       throw error;
     }
@@ -188,7 +202,7 @@ onMounted(fetchUserData);
   white-space: nowrap;
   display: inline-block;
   overflow: hidden;
-  
+
 }
 
 .sidebar ul {
@@ -242,12 +256,15 @@ onMounted(fetchUserData);
 }
 
 .tab {
-  display: flex; /* Activate flexbox layout */
-  align-items: center; /* Vertically align icons and text to the center */
-  gap: 10px;  /* Add a 10px gap between the icon and text */
+  display: flex;
+  /* Activate flexbox layout */
+  align-items: center;
+  /* Vertically align icons and text to the center */
+  gap: 10px;
+  /* Add a 10px gap between the icon and text */
 }
 
-.h3{
+.h3 {
   overflow: hidden;
 }
 
