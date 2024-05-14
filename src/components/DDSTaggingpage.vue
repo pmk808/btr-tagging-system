@@ -103,7 +103,7 @@
             </div>
           </form>
         </div>
-        <button @click="closeModal">Close</button>
+        <button @click="closeModal" class="close-modal">Close</button>
       </div>
     </div>
   </div>
@@ -358,11 +358,12 @@ function resetForm() {
 }
 
 .generate-report-button {
+  justify-content: space-between;
   display: flex;
-  align-items: center;
+  align-items: left;
   background-color: #fdd116;
   font-size: 15px;
-  color: #0038A7;
+  color: #fff;
   border-radius: 5px;
   padding: 5px;
   cursor: pointer;
@@ -407,6 +408,25 @@ function resetForm() {
 .status-capsule.orange {
   background-color: orange;
   color: white;
+}
+
+.open-modal-button {
+  justify-content: space-between;
+  display: flex;
+  align-items: left;
+  background-color: #fdd116;
+  font-size: 15px;
+  color: #fff;
+  border-radius: 5px;
+  padding: 5px;
+  cursor: pointer;
+
+}
+
+.open-modal-button:hover {
+  background-color: #ffd700;
+  color: #0038A7;
+  transition: 0.5s ease;
 }
 
 .modal {
@@ -481,7 +501,16 @@ function resetForm() {
 }
 
 .ddstagging-form .buttons button {
-  padding: 10px 20px;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 5px;
+  background-color: #0038A7;
+  color: #fff;
+  cursor: pointer;
+}
+
+.close-modal {
+  padding: 10px 15px;
   border: none;
   border-radius: 5px;
   background-color: #0038A7;
@@ -494,7 +523,15 @@ function resetForm() {
   cursor: not-allowed;
 }
 
+.close-modal [disabled] {
+  background-color: #ccc;
+  cursor: not-allowed
+}
+
 .ddstagging-form .buttons button:hover:not([disabled]) {
+  background-color: #001F5E;
+}
+.close-modal:hover:not([disabled]) {
   background-color: #001F5E;
 }
 </style>
