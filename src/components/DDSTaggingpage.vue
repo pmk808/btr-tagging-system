@@ -27,12 +27,12 @@
                 <tr v-for="document in paginatedDocuments" :key="document.id">
                   <td>{{ document.document_type }}</td>
                   <td>{{ document.document_title }}</td>
-                  <td>{{ document.forward }}</td>
-                  <td>{{ document.fwdDate }}</td>
-                  <td>{{ document.department }}</td>
+                  <td>{{ document.fwd_to }}</td>
+                  <td>{{ document.fwd_date }}</td>
+                  <td>{{ document.office }}</td>
                 </tr>
                 <tr v-if="!paginatedDocuments.length">
-                  <td colspan="8" class="no-results">No results found</td>
+                  <td colspan="5" class="no-results">No results found</td>
                 </tr>
               </tbody>
             </table>
@@ -48,7 +48,6 @@
     </div>
     <div class="modal" v-if="isModalOpen">
       <div class="modal-content">
-        <!-- Inline Form -->
         <div class="ddstagging-form">
           <div class="form-row">
             <h2>Document Tagging Form</h2>
@@ -57,7 +56,6 @@
             </div>
           </div>
           <form @submit.prevent="submitForm">
-            <!-- Document Type and Action Needed -->
             <div class="form-row">
               <div class="form-group">
                 <label for="documentType">Document Type</label>
@@ -71,18 +69,17 @@
             <div class="form-row">
               <div class="form-group">
                 <label for="forward">Forwarded To: &nbsp;</label>
-                <input type="text" id="forward" v-model="forward" required>
+                <input type="text" id="forward" v-model="fwdTo" required>
               </div>
               <div class="form-group">
                 <label for="fwdDate">Forwarded Date: &nbsp;</label>
                 <input type="date" id="fwdDate" v-model="fwdDate" required>
               </div>
             </div>
-            <!-- Office: and In or Out: -->
             <div class="form-row">
               <div class="form-group">
                 <label for="department">Office: &nbsp;</label>
-                <select v-model="department" required>
+                <select v-model="office" required>
                   <option disabled value="">Select Department</option>
                   <option value="Raccounting">Admin - Accounting</option>
                   <option value="Ragbs">Admin - AGBs</option>
@@ -94,7 +91,6 @@
                 </select>
               </div>
             </div>
-            <!-- Submit Button -->
             <div class="buttons">
               <button type="submit" :disabled="isLoading">
                 {{ isLoading ? 'Processing...' : 'Submit' }}
@@ -110,41 +106,40 @@
 </template>
 
 <script setup>
-import { ref, computed } from 'vue';
+import { ref, computed, onMounted } from 'vue';
 import HeaderComponent from '../components/dashboardcomp/HeaderComponent.vue';
 import SidebarComponent from '../components/dashboardcomp/SidebarComponent.vue';
 import FooterComponent from '../components/dashboardcomp/FooterComponent.vue';
 import '@fortawesome/fontawesome-free/js/all.js';
 import jsPDF from 'jspdf';
 import 'jspdf-autotable';
+import { supabase } from '../supabaseconfig.js';
 
 const sidebarVisible = ref(true);
 const searchQuery = ref('');
 const currentPage = ref(1);
 const itemsPerPage = ref(5);
 
-const documents = ref([
-  // Sample documents
-  {
-    id: 1,
-    document_code: 'DOC001',
-    document_type: 'Type1',
-    document_title: 'Title1',
-    forward: 'Dept1',
-    fwdDate: '01/01/2023',
-    department: 'Raccounting',
-    status: 'Pending',
-    select_recipient: ''
-  },
-  // Add more documents as needed
-]);
+const documents = ref([]);
+
+const fetchDocuments = async () => {
+  let { data, error } = await supabase
+    .from('dds_outgoing')
+    .select('*');
+  
+  if (error) {
+    console.error(error);
+  } else {
+    documents.value = data;
+  }
+};
+
+onMounted(fetchDocuments);
 
 const filteredDocuments = computed(() => {
-  return documents.value
-    .filter(document =>
-      document.document_title?.toLowerCase().includes(searchQuery.value.toLowerCase()) ||
-      document.document_code?.toLowerCase().includes(searchQuery.value.toLowerCase())
-    );
+  return documents.value.filter(document =>
+    document.document_title?.toLowerCase().includes(searchQuery.value.toLowerCase())
+  );
 });
 
 const paginatedDocuments = computed(() => {
@@ -191,25 +186,19 @@ function generatePDF() {
   doc.text('Document Report', 10, 10);
 
   const columns = [
-    'Document Code',
     'Document Type',
     'Document Title',
     'Forwarded To',
     'Forwarded Date',
-    'Office',
-    'Status',
-    'Select Recipient'
+    'Office'
   ];
 
   const data = paginatedDocuments.value.map(document => [
-    document.document_code,
     document.document_type,
     document.document_title,
-    document.forward,
-    document.fwdDate,
-    document.department,
-    document.status,
-    document.select_recipient
+    document.fwd_to,
+    document.fwd_date,
+    document.office
   ]);
 
   doc.autoTable({
@@ -224,39 +213,46 @@ function generatePDF() {
   doc.save('dds_report.pdf');
 }
 
-// Form-related data and methods
 const currentDate = ref(new Date().toLocaleDateString());
 const documentType = ref('');
-const actionsNeeded = ref('');
 const documentTitle = ref('');
-const agencySource = ref('');
-const receivedBy = ref('');
-const forward = ref('');
+const fwdTo = ref('');
 const fwdDate = ref(currentDate.value);
-const department = ref('');
-const in_out = ref('');
+const office = ref('');
 const isLoading = ref(false);
 
-function submitForm() {
+const submitForm = async () => {
   isLoading.value = true;
-  setTimeout(() => {
-    console.log('Form submitted');
+  
+  const { error } = await supabase
+    .from('dds_outgoing')
+    .insert([
+      {
+        document_type: documentType.value,
+        document_title: documentTitle.value,
+        fwd_to: fwdTo.value,
+        fwd_date: fwdDate.value,
+        office: office.value
+      }
+    ]);
+
+  if (error) {
+    console.error(error);
+  } else {
+    fetchDocuments();
     resetForm();
-    isLoading.value = false;
     closeModal();
-  }, 2000);
-}
+  }
+  
+  isLoading.value = false;
+};
 
 function resetForm() {
   documentType.value = '';
-  actionsNeeded.value = '';
   documentTitle.value = '';
-  agencySource.value = '';
-  receivedBy.value = '';
-  forward.value = '';
+  fwdTo.value = '';
   fwdDate.value = currentDate.value;
-  department.value = '';
-  in_out.value = '';
+  office.value = '';
 }
 </script>
 
