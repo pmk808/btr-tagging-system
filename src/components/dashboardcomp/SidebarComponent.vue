@@ -1,5 +1,12 @@
 <template>
   <div :class="['sidebar', { 'collapsed': !sidebarVisible }]">
+    <ConfirmDialog
+      :visible="showConfirmDialog"
+      title="Logout Confirmation"
+      message="Are you sure you want to log out?"
+      @confirm="logout"
+      @cancel="showConfirmDialog = false"
+    />
     <span class="toggle-btn" @click="toggleSidebar">
       <font-awesome-icon :icon="sidebarVisible ? ['fas', 'bars'] : ['fas', 'angles-right']" />
     </span>
@@ -55,7 +62,7 @@
     </ul>
     <div class="logout">
       <ul>
-        <li :class="{ 'active': $route.path === '/' }"><router-link to="/" @click="confirmLogout">
+        <li :class="{ 'active': $route.path === '/' }"><router-link to="/" @click.prevent="showConfirmDialog = true">
             <div class="tab" style="width: 150px;"><span class="icons">
                 <font-awesome-icon :icon="['fas', 'right-from-bracket']" /></span>Logout</div>
           </router-link></li>
@@ -69,7 +76,7 @@
 import '@fortawesome/fontawesome-free/js/all.js';
 import { FontAwesomeIcon } from '@fortawesome/vue-fontawesome';
 import { useRouter } from 'vue-router';
-
+import ConfirmDialog from '../dashboardcomp/ConfirmDialog.vue'; // Import the ConfirmDialog component
 import { ref, onMounted } from 'vue';
 import { supabase } from '../../supabaseconfig.js'; // Assuming you have a file for Supabase configuration
 
@@ -78,6 +85,7 @@ const sidebarVisible = ref(true);
 const isAdmin = ref(false); // Initialize isAdmin as false by default
 const loading = ref(false); // Initialize loading state
 const department = ref('');
+const showConfirmDialog = ref(false);
 
 const toggleSidebar = () => {
   sidebarVisible.value = !sidebarVisible.value;
@@ -88,12 +96,6 @@ const logout = () => {
   localStorage.removeItem('sb-yszwlktldjrohxuneyop-auth-token');
   // Redirect to login page
   router.push('/');
-};
-
-const confirmLogout = () => {
-  if (window.confirm('Are you sure you want to log out?')) {
-    logout();
-  }
 };
 
 const fetchUserData = async () => {
