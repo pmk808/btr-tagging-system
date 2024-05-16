@@ -3,7 +3,7 @@
     <ConfirmDialog
       :visible="showConfirmDialog"
       title="Logout Confirmation"
-      message="Are you sure you want to log out?"
+      message="Oh No! Are you sure you want to leave?"
       @confirm="logout"
       @cancel="showConfirmDialog = false"
     />
