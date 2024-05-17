@@ -1,9 +1,9 @@
 <!-- ConfirmDialog.vue -->
 <template>
-  <div v-if="visible" class="modal-overlay">
+  <div v-if="props.visible" class="modal-overlay">
     <div class="modal-container">
-      <h3 class="modal-title">{{ title }}</h3>
-      <p class="modal-message">{{ message }}</p>
+      <h3 class="modal-title">{{ props.title }}</h3>
+      <p class="modal-message">{{ props.message }}</p>
       <div class="modal-actions">
         <button class="btn btn-confirm" @click="confirm">Confirm</button>
         <button class="btn btn-cancel" @click="cancel">Cancel</button>
@@ -15,7 +15,7 @@
 <script setup>
 import { defineProps, defineEmits } from 'vue';
 
-defineProps({
+const props = defineProps({
   title: {
     type: String,
     default: 'Confirm'
