@@ -70,6 +70,7 @@
             <option disabled value="">Select</option>
             <option value="Incoming">Incoming</option>
             <option value="Outgoing">Outgoing</option>
+            <option value="Outgoing">Internal</option>
           </select>
         </div>
       </div>
