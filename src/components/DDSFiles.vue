@@ -158,28 +158,35 @@ const nextPage = () => {
     }
 };
 function getStatusClass(status, in_out) {
-  if (in_out === 'Incoming') {
-    return {
-      'status-capsule': true,
-      'green': status === 'Forwarded',
-      'yellow': status === 'Pending',
-      'orange': status === 'Returned'
-    };
-  } else if (in_out === 'Outgoing') {
-    return {
-      'status-capsule': true,
-      'green': status === 'Released',
-      'yellow': status === 'Pending',
-      'orange': status === 'Returned'
-    };
-  } else {
-    return {
-      'status-capsule': true,
-      'green': status === 'Forwarded',
-      'yellow': status === 'Pending',
-      'orange': status === 'Returned'
-    };
-  }
+    if (in_out === 'Incoming') {
+        return {
+            'status-capsule': true,
+            'green': status === 'Forwarded',
+            'yellow': status === 'Pending',
+            'orange': status === 'Returned'
+        };
+    } else if (in_out === 'Outgoing') {
+        return {
+            'status-capsule': true,
+            'green': status === 'Released',
+            'yellow': status === 'Pending',
+            'orange': status === 'Returned'
+        };
+    } else if (in_out === 'Internal') {
+        return {
+            'status-capsule': true,
+            'green': status === 'Released',
+            'yellow': status === 'Pending',
+            'orange': status === 'Returned'
+        };
+    } else {
+        return {
+            'status-capsule': true,
+            'green': status === 'Forwarded',
+            'yellow': status === 'Pending',
+            'orange': status === 'Returned'
+        };
+    }
 }
 
 const generatePDF = () => {
