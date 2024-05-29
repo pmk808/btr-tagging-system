@@ -83,7 +83,7 @@ const chartData = ref({
     }]
   },
   pieChartData: {
-    labels: ['Incoming', 'Outgoing'],
+    labels: ['Incoming', 'Outgoing', 'Internal'],
     datasets: [{
       data: [],
       backgroundColor: []
@@ -178,9 +178,10 @@ async function fetchData() {
 
   const incomingCount = pieData.filter(item => item.in_out === 'Incoming').length;
   const outgoingCount = pieData.filter(item => item.in_out === 'Outgoing').length;
+  const internalCount = pieData.filter(item => item.in_out === 'Internal').length;
 
   // Update pie chart data
-  chartData.value.pieChartData.datasets[0].data = [incomingCount, outgoingCount];
+  chartData.value.pieChartData.datasets[0].data = [incomingCount, outgoingCount, internalCount];
 
   // Generate random colors for pie chart
   chartData.value.pieChartData.datasets[0].backgroundColor = [getRandomColor(), getRandomColor()];

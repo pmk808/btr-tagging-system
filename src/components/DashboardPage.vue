@@ -186,6 +186,11 @@
                     <option value="Pending">Pending</option>
                     <option value="Returned">Returned</option>
                   </template>
+                  <template v-else-if="editedDocument.in_out === 'Internal'">
+                    <option value="Released">Released</option>
+                    <option value="Pending">Pending</option>
+                    <option value="Returned">Returned</option>
+                  </template>
                   <template v-else>
                     <!-- Default options -->
                     <option value="">Select Status</option>
@@ -427,15 +432,15 @@ async function generateReport() {
 function getSectionTitle(doc) {
   switch (true) {
     case doc.office === 'RDoffice':
-      return `Regional Director - ${doc.in_out === 'Incoming' ? 'Incoming' : 'Outgoing'}`;
+      return `Regional Director - ${doc.in_out === 'Incoming' ? 'Incoming' : doc.in_out === 'Outgoing' ? 'Outgoing' : 'Internal'}`;
     case doc.office.startsWith('R'):
-      return `Regional - ${doc.in_out === 'Incoming' ? 'Incoming' : 'Outgoing'}`;
+      return `Regional - ${doc.in_out === 'Incoming' ? 'Incoming' : doc.in_out === 'Outgoing' ? 'Outgoing' : 'Internal'}`;
     case doc.office.startsWith('P'):
-      return `Provincial - ${doc.in_out === 'Incoming' ? 'Incoming' : 'Outgoing'}`;
+      return `Provincial - ${doc.in_out === 'Incoming' ? 'Incoming' : doc.in_out === 'Outgoing' ? 'Outgoing' : 'Internal'}`;
     case doc.office === 'others':
-      return `Regional - ${doc.in_out === 'Incoming' ? 'Incoming' : 'Outgoing'}`;
+      return `Regional - ${doc.in_out === 'Incoming' ? 'Incoming' : doc.in_out === 'Outgoing' ? 'Outgoing' : 'Internal'}`;
     default:
-      return `Regional - ${doc.in_out === 'Incoming' ? 'Incoming' : 'Outgoing'}`;
+      return `Regional - ${doc.in_out === 'Incoming' ? 'Incoming' : doc.in_out === 'Outgoing' ? 'Outgoing' : 'Internal'}`;
   }
 }
 
@@ -449,6 +454,13 @@ function getStatusClass(status, in_out) {
       'orange': status === 'Returned'
     };
   } else if (in_out === 'Outgoing') {
+    return {
+      'status-capsule': true,
+      'green': status === 'Released',
+      'yellow': status === 'Pending',
+      'orange': status === 'Returned'
+    };
+  } else if (in_out === 'Internal') {
     return {
       'status-capsule': true,
       'green': status === 'Released',
@@ -475,11 +487,15 @@ function updateStatus() {
     } else if (editedDocument.value.in_out === 'Outgoing') {
       // Update the status to 'Released' if the document is outgoing
       editedDocument.value.status = 'Released';
+    } else if (editedDocument.value.in_out === 'Internal') {
+      // Update the status to 'Internal' if the document is internal
+      editedDocument.value.status = 'Internal';
     } else {
       // Handle other cases if necessary
     }
   }
 }
+
 
 function changePage(direction) {
   if (direction === 'Previous') {
@@ -600,6 +616,7 @@ async function deleteDocument(document) {
 const filterOptions = [
   { value: 'Incoming', label: 'Incoming' },
   { value: 'Outgoing', label: 'Outgoing' },
+  { value: 'Internal', label: 'Internal' },
   { value: '', label: 'All' },
 ];
 
