@@ -487,11 +487,15 @@ function updateStatus() {
     } else if (editedDocument.value.in_out === 'Outgoing') {
       // Update the status to 'Released' if the document is outgoing
       editedDocument.value.status = 'Released';
+    } else if (editedDocument.value.in_out === 'Internal') {
+      // Update the status to 'Internal' if the document is internal
+      editedDocument.value.status = 'Internal';
     } else {
       // Handle other cases if necessary
     }
   }
 }
+
 
 function changePage(direction) {
   if (direction === 'Previous') {
