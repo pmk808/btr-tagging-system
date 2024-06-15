@@ -55,7 +55,8 @@
             <option value="Ragbs">Admin - AGBs</option>
             <option value="Rbudget">Admin - Budget</option>
             <option value="Rcashier">Admin - Cashier</option>
-            <option value="Rcentral">Admin - Central</option>
+            <option value="Rcentral">Central Office</option>
+            <option value="Regional">Regional Office</option>
             <option value="Roperations">Admin - Operations</option>
             <option value="RDoffice">RD/Staff Office</option>
             <option value="Pdds">Provincial - DDS</option>
